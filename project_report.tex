@@ -1,0 +1,77 @@
+% ******************************************************************	********************************************
+%
+% **************************************************************************************************************
+\documentclass[ twoside,openright,titlepage,numbers=noenddot,%
+								toc=bibliography,toc=listof,%
+                footinclude=false,headinclude=false,cleardoublepage=empty,%
+								BCOR=5mm,paper=a4,fontsize=11pt,%DIV=14,%
+                ngerman%
+                ]{scrreprt}
+
+%***************************************************************************************************************
+% Note: Make all your adjustments in here
+%***************************************************************************************************************
+\input{project_report_config}
+
+%********************************************************************
+% Hyphenation
+%*******************************************************
+%\hyphenation{put special hyphenation here}
+
+% ********************************************************************
+% GO!GO!GO! MOVE IT!
+%*******************************************************
+\begin{document}
+\frenchspacing
+\raggedbottom
+\selectlanguage{ngerman} % american ngerman
+\pagenumbering{roman}
+\pagestyle{plain}
+%*******************************************************
+% Frontmatter
+%*******************************************************
+\include{FrontBackmatter/Titlepage}
+%\cleardoublepage\include{FrontBackmatter/Abstract}
+\cleardoublepage\include{FrontBackmatter/Contents}
+
+%*******************************************************
+% Mainmatter
+%*******************************************************
+\cleardoublepage
+\pagenumbering{arabic}
+\pagestyle{headings}
+%\pagestyle{scrheadings}
+\cleardoublepage\include{Chapters/Einleitung}	 	
+\cleardoublepage\include{Chapters/Projektmanagement} 
+\cleardoublepage\include{Chapters/Projektbeschreibung} 	
+\cleardoublepage\include{Chapters/Implementierung} 	
+				%-------------------------------------------------
+				\include{Chapters/Sections/1_Frontend}
+				\include{Chapters/Sections/2_Backend}
+				\include{Chapters/Sections/3_Datenbank}
+				\include{Chapters/Sections/4_Sicherheit}
+				\include{Chapters/Sections/5_Architektur}
+				\include{Chapters/Sections/6_Deployment}	
+				%-------------------------------------------------
+%********************************************************************
+% Bibliography/References
+%*******************************************************
+\cleardoublepage\include{FrontBackmatter/Bibliography}
+
+%********************************************************************
+% List of Figures etc.
+%*******************************************************
+\cleardoublepage\include{FrontBackmatter/ListOfs}
+\include{FrontBackmatter/Abbreviations}
+
+% ********************************************************************
+% Appendix/Anhang
+%***************************************************************
+\appendix
+\part*{Anhang}
+\cleardoublepage\include{Chapters/Anhang-A}
+
+%*******************************************************
+\cleardoublepage\include{FrontBackmatter/Colophon}
+\end{document}
+% ********************************************************************

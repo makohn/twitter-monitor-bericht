@@ -1,0 +1,105 @@
+%=========================================
+% 	   Frontend							 =
+%=========================================
+\section{Frontend} 
+
+
+\subsection{Anforderungen}
+
+
+Dem Benutzer soll es ermöglicht werden über eine Eingabemaske ein Konto anzulegen. Das Konto dient zur 
+individuellen Zuweisung von Tweets und Keywords zu einem Benutzer. Die vom Benutzer geforderten Daten 
+sollten nicht zu umfangreich sein, da sich eine schnelle Abwicklung des Prozesses positiv auf die 
+Absprungrate auswirkt. Trotzdem sollten die Daten den  Benutzer eindeutig identifizieren können. 
+Zudem müssen Eingaben validiert werden, um Eingabefehlern vorzubeugen und Sicherheitsaspekte umsetzen 
+zu können. Die Validierung sollte schon während der Laufzeit erfolgen, so dass dem Benutzer die 
+Möglichkeit gegeben werden kann seine Eingaben unmittelbar zu korrigieren. \\
+Es soll eine Schnittstelle bereitgestellt werden, mit dem man Keywords erzeugen, bearbeiten und 
+löschen kann. Zudem muss eine einfache Vergabe von Prioritäten möglich gemacht werden. \\
+Die durch ein Keyword gefilterten Tweets müssen übersichtlich dargestellt werden. Ein dargestellter 
+Tweet sollte aus folgenden Teilen zusammengesetzt sein:
+\begin{itemize}
+\item{Tweet-Text}
+\item{Tweet-Bild}
+\item{Tweet-Author}
+\item{Tweet-Zeit}
+\end{itemize} 
+Die Liste der dargestellten Tweets sollte sich  während einer Session selbstständig aktualisieren. \\
+Desweiteren sollte es dem Benutzer möglich sein sich auszuloggen, um die Sicherheit von 
+Mehrbenutzersystemen zu gewährleisten. Außerdem muss die Möglichkeit gegeben sein, sein Passwort zu 
+ändern und gegebenenfalls eine Email-Benachrichtigung aktivieren oder deaktivieren zu können.
+
+\subsection{Programmierspezifische Mittel}
+\medskip
+\subsubsection*{\acs{JSP}/HTML}
+\ac{JSP} erlauben es mittels eines Präprozessors eine HTML basierte 
+Website zu erstellen, die das Hinzufügen von Java-Code inmitten des HTML-Codes erlaubt. Dazu bedient 
+man sich bestimmter Tag-Bibliotheken.
+ 
+\subsubsection*{CSS}
+CSS dient der Ausrichtung verschiedener Elemente auf einer Website sowie der Bestimmung farblicher 
+Aspekte. Da CSS vom Browser des jeweiligen Clients interpretiert und umgesetzt wird, benötigt eine 
+Änderung von CSS-Attributen keine Neukompilierung der \acs{JSP}. DIese Eigenschaft ermöglicht 
+die Neuausrichtung von Elementen bei Erfüllung einer Bedingung oder durch eine Javascript-Funktion. 
+
+\subsubsection*{Javascript}
+Javascript ist eine höhere Skriptsprache die vom Browser des Clients interpretiert wird. Sie 
+ermöglicht zum einen eine funktions- sowie objektorientierte Programmierung. Sie kann aktiv auf HTML-
+Elemente  zugreifen und sie verändern sowie neue HTML-Elemente dynamisch erstellen. 
+Javascript hat auch die Eigenschaft CSS-Datein manipulieren zu können. Da auch Javascript keine 
+Neukompilierung der JSP nach sich zieht, werden Veränderungen während der Laufzeit umgesetzt.
+
+\subsubsection*{Java} 
+Mit dem Java-Framework Spring wird das Architekturmuster MVC umgesetzt. Das MVC definiert Controller, 
+die als Bindeglied zwischen dem Model, welches  hauptsächlich  mit Java Umgesetzt wird und dem View 
+gelten. Ein Controller kann den Datenaustausch zwischen dem Model und Browser des Clients steuern.
+
+\subsection{Konkreter Aufbau}
+Es wurden vier JSPs erzeugt und folgendermaßen umgesetzt.
+
+\subsubsection*{Home}
+Auf der Seite Home sind zwei Hauptbereiche dargestellt, die jeweils in zwei Unterbereiche 
+untergliedert sind. Der erste Hauptbereich ist der \texttt{Header}. Er beinhaltet zum einen ein Logo 
+und eine Login-Interface. 
+Das Login-Interface beinhaltet ein Textfeld für den Benutzernamen, sowie ein besonderes 
+Passworttextfeld, dass die Eingabe nicht als Klartext wiedergibt. Zum anderen enthält die Eingabemaske 
+einen Button, der Mittels einer Post-Message die Daten der beiden Textfelder an einen Controller des 
+Servers weiterreicht. Natürlich muss hierbei die JSP neu geladen werden. Mit der Spring-Security-
+Bibliothek und einem CRF-Tokens ist es möglich diese Nachricht sicher abzufangen, an das 
+Springframework weiterzureichen und eine Session für einen bestimmten Nutzer zu erstellen. Nachdem 
+der Abgleich der Eingaben und der in der Datenbank gespeicherten Werte erfolgreich verlief, wird der 
+Benutzer mittels eines an das  Spring-Security-Bibliothek gebundenen Controllers ,auf die Seite 
+\textit{Tweets} weitergeleitet. 
+Der zweite Hauptbereich enthält eine Animation die Mittels Javascript und CSS ermöglicht wurde. Dies 
+geschieht indem mehrere, zeitlich versetzte Javascript-Funktionen den CSS-Code manipulieren, wobei die 
+Animation selbst jedoch von CSS-Seite verwirklicht wird, da CSS auch Bewegungsabläufe darstellen kann. 
+Unterhalb des Login-Interfaces befindet sich ein Hyperlink der die Darstellung der Animation 
+unterbindet und eine neue Eingabemaske, die zuvor in der JSP deklariert wurde, sichtbar macht. Diese 
+Eingabemaske dient dem Erstellen eines neuen Benutzerkontos. Jedes der Textfelder führt bei Eingabe 
+eines Characters  eine Javascript-Funktion aus, welche die Eingaben validiert und dynamisch eine 
+entsprechende Ausgabe liefert. Auch bei dieser Eingabemaske wird eine POST-Message gesendet, die aber 
+nicht von Spring-Security abgefangen, sondern mittels der JSTL-Tag-Library an einen 
+\texttt{Controller} gebunden wird. 
+
+\subsubsection*{Tweets}
+Während die Seite Home hauptsächlich in der JSP selbst definiert wird, nutzt die Seite Tweets vor 
+allem den Vorteil von Javascript, dynamisch HTML-Elemente zu erzeugen. Wird die Tweets-Seite geöffnet, 
+erstellt ein bestimmter Controller eigenständig eine JSP, dessen Inhalt alle Tweets in Form von einem 
+JSON-Objektes bereitstellt. Dieses Objekt wird von einer Javaskript-Funktion aufgegriffen. Die besagte 
+Funktion erstellt für jeden Tweet im Objekt einen Tweet-Container, der alle Tweet-Attribute Formatiert 
+darstellt. Zudem Verfügt die Seite Tweets über eine Sidebar mit Funktionen zur Suche von Schlagwörtern 
+und Sortierung innerhalb der aktuell angezeigten Liste von Tweets. Diese Funktionen wurden 
+ausschließlich mit Java-Skript realisiert, um häufigen Übertragungen zwischen Client und Server 
+vorzubeugen und die Performance zu verbessern.
+
+\subsubsection*{Keywords}
+Die Seite Keywords dient zur Erstellung und Darstellung von Keywords. Wie auch bei der Seite Tweets 
+sorgt ein Controller zur Übergabe eines JSON-Objektes. Diesmal werden keine Tweets sondern Keywords 
+übergeben. Die durch Javascript erzeugten Keyworter bestehen aus drei Elementen. Dem Keyowrd selbst , 
+fünf Sternen zur Symbolisierung  der Priorität und einem Symbol zum Löschen des Kewords. Die Sterne 
+wurden mit einem Hover-Effekt belegt, der die Anzahl der Prioritätspunkte wiedergibt. Bei einem Klick 
+auf einen Stern wird mit einem Javascript-Framework namens AJAX eine Nachricht an den Server gesendet 
+ohne dabei die Seite neu zu Laden. Diese Nachricht wird von einem Controller empfangen und speichert 
+die Priorität eines Keywords in der Datenbank. Um ein neues Keyword zu erstellen wurde unter der Liste 
+von bereits existierenden Keywords ein Textfeld mit einem Button implementiert. Auch hier gilt das 
+AJAX-Prinzip, um die Seite nicht neu laden zu müssen.

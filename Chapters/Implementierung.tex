@@ -1,0 +1,70 @@
+%=========================================
+% 	   Implementierung					 =
+%=========================================
+\chapter{Implementierung}
+
+%=========================================
+% 	   Spring							 =
+%=========================================
+\section{Das Spring-Framework}
+\subsection{Warum Spring?}
+In dem nun folgenden Abschnitt wird die Frage erläutert warum das Spring Web Framework verwendet 
+wurde. Insbesondere welche Alternativen es gab und die jeweiligen Vor- und Nachteile sowie die 
+Anforderungen, die an das Web Framework gestellt wurden. \\
+Die Projektteilnehmer legten zusammen folgende Anforderungen fest. Zum einen sollte es ein Web-
+Framework sein, welches auf Java basiert, da alle Teilnehmer mit dieser Programmiersprache vertraut 
+sind. Desweiteren sollte ein standardisiertes Framework eingesetzt werden, da diese getestet sind, 
+Code minimieren und somit weniger Fehler und potentielle Fehlerquellen für das Webprojekt bedeuten. 
+Weitere Anforderungen waren die Popularität/Zukunftssicherheit, Toolunterstützung, Dokumentation 
+und der Support. \\
+Nach der Recherchezeit standen folgende Frameworks zur Auswahl:
+\begin{itemize}
+  \item Spring
+  \item Vaadin
+  \item Java Server Faces 
+  \item Spark
+\end{itemize}
+\medskip
+Im Folgenden werden zu jedem der obigen aufgelisteten Frameworks einige grundlegenden 
+Informationen, sowie die Vor- und Nachteile im Bezug auf die oben genannten Anforderungen, für die 
+Nutzung der Projektgruppe aufgelistet. 
+\begin{description}
+	\item [Spring:] ist ein auf J2EE basierendes Anwendungsframework und enthält ein eigenes MVC Framework. Es handelt sich dabei um ein Framework welches speziell für die Entwicklung mit Java und JavaEE gedacht ist. Die Vorteile sind, dass es ein quelloffenes Framework ist. Zudem ist es sehr verbreitet, was eine hohe Zukunftssicherheit mit sich bringt. Die Dokumentation und der Support sind durch die häufige Verwendung hervorragend. Bei Spring steht die Entkopplung der Applikationskomponenten im Vordergrund, was nach dem Model-View-Controller Prinzip realisiert wird. Ein Nachteil ist der hohe Einarbeitungsaufwand, da keiner der Projektteilnehmer Erfahrungen mit Web Anwendungen hatte. Dieser Nachteil trifft jedoch auf alle Frameworks zu, insbesondere aber auf das Spring Framework, da es weitere Web Entwicklungstechnologien benutzt, wie Servlets, JavaServer Pages und Faces welche bis dahin auch weitestgehend unbekannt waren.
+	\item [Vaadin:] ist eine neue Innovative Möglichkeit der Web Entwicklung, welches ebenfalls speziell für die Entwicklung mit Java gedacht ist. Vaadin bietet es eine serverseitige Architektur, was bedeutet, dass der Großteil der Programmlogik auf dem Server läuft. Dadurch hat das Framework eine andere Vorgehensweise als JavaScript Bibliotheken oder auf Browser Plugins basierenden Lösungen. Vaadin ist eine frei verfügbare Software. Der Einstieg in die Web-Entwicklung fällt deutlich leichter als mit dem oben genannten Spring Framework, da einfache Anwendungen intuitiv entwickelt werden können. Es existiert ebenfalls eine umfangreiche Dokumentation und ein guter Support über das Vaadin Forum. Jedoch erfreut sich das Framework zum Zeitpunkt unseres Projekts keiner hohen Popularität, dadurch kann über die Zukunftssicherheit noch keine Prognose getroffen werden. 
+	\item [Java Server Faces:] ist ein Framework welches in JavaEE bereits integriert ist. Java Server Faces hat eine hohe Popularität. Dadurch besitzt es eine vergleichsweise hohe Zukunftssicherheit. Jedoch ist es wie das Spring Framework für Großprojekte gedacht und verursacht damit bei kleineren Projekten sehr viel Anfangsarbeit (“Oberhead“). Zusätzlich benötigt es Einarbeitungszeit in weitere Basistechnologien, die das Framework nutzt. Die Strukturierung des späteren Projekts (wie auch bei Spring, durch das Model-View-Controller-Konzept realisiert) erhöht die Übersichtlichkeit und ermöglicht eine Wiederverwendung in anderen Projekten.
+	\item [Spark:] ist ein “kleines“ und einfache zu benutzendes Java Framework für Web Anwendungen. Dabei handelt sich um ein Framework, welches für Echtzeitanalysen d.h. die schnelle Verarbeitung großer Datenmengen gedacht ist. Die Dokumentation ist für die Größe des Frameworks ausreichen. Die Popularität schätzt das Projektteam zum Projektstart relativ gering ein. Jedoch würde es für die Ansprüche im Twitter-Projekt, die geringste Einarbeitungszeit benötigen, da es sehr übersichtlich und intuitiv zu benutzten ist. 
+\end{description}
+
+\textit{Auswahl:} Vaadin schied als Innovativsoftware aus, da man keine Prognose für die Zukunftssicherheit machen kann. Somit wäre das Projekt nicht mehr erweiterbar, sollte sich das Framework nicht durchsetzen und vom Markt verschwinden. Spark wurde wegen des zu geringen Supports (Nutzergruppe zu klein) aus der Auswahl gestrichen. Java Server Faces und das Spring Framework befanden sich in der letzten Auswahl. Das Projektteam sah beide als “gleichwertig“ im Bezug auf das gestellte Thema bzw. die gestellte Aufgabe an. Schlussendlich fiel die Entscheidung auf das Spring Framework, da es nicht nur in Web Anwendungen benutzt wird und das Team ihm eine größere Popularität/Zukunftssicherheit zutraut.
+
+\subsection{Spring als Grundlage für das Projekt}
+
+Die konkrete Implementierung ist maßgeblich von der Entscheidung für das Spring Framework
+geprägt. Dieses bietet einerseits eine einfache Möglichkeit zum Aufbau einer Java­Server­basierten
+Web­Anwendung und andererseits eine flexible Datenbank­Schnittstelle. Dadurch ermöglicht es
+die Kapselung der eigentlichen Funktionalität im Java­Code, während die Datenbank und die
+Website unabhängig davon aufgebaut werden können.[6] Auch intern erleichtert Spring den
+Aufbau der zweiteiligen Streaming­Architektur (Wiring und DI zur Erstellung des Streams) und
+bietet daneben noch zahlreiche weitere hilfreiche Elemente (Autowiring, Scheduler, Login,
+Verschlüsselung). \\
+Spring besteht aus einzelnen Komponenten, die (teilweise?) unabhängig voneinander je nach
+Bedarf verwendet werden können.
+Das Grundprinzip von Spring[7] besteht in der deklarativen (???) Art der Objekterstellung durch
+Wiring und Dependency Injection. Darunter versteht man die automatische Erstellung und
+Referenzierung von Objekten in einem gemeinsamen Application Context.[8] Explizite
+Konstruktoraufrufe (in einem Boiler Plate­Code) sind nicht mehr notwendig. Da es sich bei allen
+Objekten in der Anwendung außerdem um Einzelstücke[9] selbsterstellter Klassen handelt, kann
+selbst die Deklaration an sich dem Autowiring überlassen werden. Alle Klassen, die als zu
+erstellende Beans/Komponenten[10] markiert sind, werden beim Anwendungsstart mit Referenzen
+auf andere Beans/Komponenten aus dem Application Context, die anhand des benötigten
+Datentyps identifiziert werden, instantiiert.
+In der Anwendung wird diese grundlegende Architektur unter anderem auch verwendet, um zum
+Anwendungsstart ein Objekt zu erstellen, das für die Erstellung und Verwaltung des Streams
+zuständig ist. \\
+Eine Spring­Web­Anwendung verwendet außerdem zentral die mvc­Komponente um Webpages zu
+erstellen und mit Daten aus der Anwendung zu versorgen. Dazu empfängt in einer laufenden
+Serveranwendung zunächst ein zentrales DispatcherServlet alle HTTP­Requests und verteilt diese
+dann an die passenden Controller. Dieser befragt die verschiedenen Services eventuell nach
+Daten und speichert diese in einem Model. Außerdem liefert der Controller ein JSP. Aus den
+Daten aus dem Model und der JSP wird schließlich die Webpage generiert und im Response
+versendet.

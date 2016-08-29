@@ -1,0 +1,124 @@
+%=========================================
+% 	   Datenbank						 =
+%=========================================
+\section{Datenbank}
+
+Der Name der Datenbank lautet \texttt{twitter\_monitor} und wird benutzt um Daten wie Tweets und 
+Benutzerprofile des Projektes Twitter-Monitor zu speichern. Desweiteren hilft sie auch dabei 
+Benachrichtigungen über interessante Tweets für die Nutzer anzulegen, welche dann über den Server 
+per E-Mail versendetwerden. Hilfreiche Funktionen zur Berechnung der Tweet-Priorität werden auch
+von der Datenbank angeboten. 
+
+\subsection{Stored-Procedures und Stored-Functions}
+
+\begin{table}[!ht]
+\small 
+\caption{Stored-Procedures (P) und Stored-Functions (F)}
+  \begin{tabular}{p{3.3cm}p{5.4cm}p{3.2cm}p{1.8cm}}
+    \toprule 
+    \textbf{Name} & \textbf{Beschreibung} & \textbf{Input} & \textbf{Output} \\
+    \hline
+    \texttt{get\_personal\_prio} (F) & Errechnet die persönliche Priorität für einen Tweet passend zum Benutzer. Dafür wird die allgemeine Tweet-Prio und die vom Benutzer eingestellte Keyword-Prio mit einbezogen. & tweetId: bigint, \newline username: \newline varchar(60) & float: \newline Errechnete Priorität \\
+    %------------------------------------------------------------------------------------------
+    \texttt{calc\_tweet\_prio} (F) & Implementiert die Formel zur Priorisieren von Tweets & favoriteCount: int, \newline retweetCount: int, followerCount: int & float: \newline Priorität \\
+    %------------------------------------------------------------------------------------------
+    \texttt{get\_general\_prio} (F) & Errechnet die Priorität für einen Tweet anhand der Tweet-ID & tweetId: bigint  & float: \newline Priorität \\
+    %------------------------------------------------------------------------------------------
+     \texttt{user\_exists} (F) & Überprüft, ob es bereits einen Nutzer mit dieser Email-Adresse bereits gibt.  & username: \newline varchar(60) & bool: \newline 1:true/ \newline 0:false \\
+    %------------------------------------------------------------------------------------------
+ 	 \texttt{get\_tweet\_html} (F) & Hilfsfunktion, die ein Tweet mithilfe von HTML nachbaut wie auf der Webseite & tweet\_text: text, \newline author\_name: \newline varchar (15), \newline author\_picture: \newline varchar(100), tweet\_datum: \newline datetime, \newline tweet\_image: \newline varchar(100) & text: \newline Tweet \newline als HTML \\
+    %------------------------------------------------------------------------------------------
+ 	 \texttt{notify\_users} (P) & Erstellt eine Benachrichtigung zu jedem Nutzer mit den Top-Tweets aus den letzten 12 Stunden, sofern der Nutzer dies aktiviert hat & username: \newline varchar(60) & text: \newline Top-Tweets als HTML \\
+    %------------------------------------------------------------------------------------------
+    \texttt{get\_top\_tweets} (F) & Ermittelt zum übergebenen Nutzer die 5 besten Tweets aus den letzten 12 Stunden & &  \\
+    %------------------------------------------------------------------------------------------
+    \texttt{check\_preference} (F) & Überprüft ob ein Benutzer die entsprechende Einstellung gesetzt hat. Wenn ja gibt er den eingestellten Wert zurück, wenn nicht den Standard-Wert.  & preferenceType: \newline varchar(3), \newline username: \newline varchar(60) & int: \newline Wert der \newline Einstellung \\
+    %------------------------------------------------------------------------------------------
+	\bottomrule
+  \end{tabular}
+\end{table}
+\newpage
+Diese Funktionen kann man folgendermaßen in einem normalen SQL-Statement 
+aufrufen:
+
+\begin{lstlisting}[style=SQL]
+	select user_exists('oliverseibert'); -- Funktion 
+	call notify_users(); -- Prozedur
+\end{lstlisting} 
+\bigskip
+\textbf{Hinweis}: Den Datentyp „bool“ gibt es zwar in MySQL, es wird jedoch als Ergebnis nach Aufruf der Funktion eine 0 oder 1 zurückgegeben.
+
+
+\subsection{Events}
+
+Damit der Event-Scheduler auch nach einem Neustart läuft wurde in der Konfigurationsdatei unter 
+\texttt{mysqld} der Eintrag „event\_scheduler=on“ hinzugefügt.
+
+\begin{table}[!ht]
+\caption{Events}
+  \begin{tabular}{p{4.8cm}p{4.4cm}p{4.6cm}}
+    \toprule 
+    \textbf{Name} & \textbf{Beschreibung} & \textbf{Intervall} \\
+    \hline 
+    \texttt{delete\_old\_tweets} & Löscht Tweets, die älter sind als 5 Tage & Alle 720 Minuten \\
+    \texttt{notify\_users\_about\_tweets} & Ruft die Prozedur notify\_users() auf & Alle 720 Minuten, immer um 08:00 Uhr und um 20:00 Uhr \\
+	\bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Trigger}
+
+\begin{table}[!ht]
+\caption{Trigger}
+  \begin{tabular}{p{3.6cm}p{7.6cm}p{2.6cm}}
+    \toprule 
+    \textbf{Name}  & \textbf{Beschreibung} & \textbf{Typ} \\
+    \hline 
+    \texttt{tweets\_after\_insert} & Triggert gleicht beim Einfügen eines neuen Tweets die Keywords mit dem neuen Tweet ab & after insert  \\
+	\bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Benutzer}
+
+Es wurden zwei Benutzer für die Benutzung der TwitterMonitor-Datenbank angelegt.  
+\begin{description}
+	\item [twitteruser: ] Wird von auf dem Server laufenden Programm Twitter-Monitor benutzt. Hat Select-Rechte auf alle Tabellen. Darf alle Stored-Procedures/Functions ausführen. Hat Update/Insert-Rechte auf die Entitäten users, authorities, keywords, tweetAuthors, tweets und tweetMedia. Jedoch beschränkt auf die Datenbank „TwitterMonitor“. 
+	\item [twitteradmin: ] Wird benutzt um die TwitterMonitor-Datenbank zu administrieren, wie etwa neue Benachrichtungstypen oder neue Benutzereinstellungen anzulegen. Oder auch um die 
+		Tweet-Tabelle zu leeren. \\
+		Hat Select/Update/Insert/Delete-Rechte auf alle Tabellen. Darf alle Stored-
+		Procedures/Functions ausführen. Jedoch beschränkt auf die Datenbank
+		„TwitterMonitor“. 
+\end{description}
+ 
+\subsection{Entitäten}
+ 
+\begin{table}[!ht]
+\caption{tweets: Speicherung der Tweet-Informationen aus Twitter. }
+  \begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
+    \toprule 
+    \textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
+    \hline 
+    \texttt{tweetId} & Eindeutige ID, die von Twitter übernommen wird & \texttt{bigint} & ja && ja   \\
+    \texttt{autorId} &  & \texttt{bigint} & & ja & ja   \\
+    \texttt{text} & Inhalt des Tweets  & \texttt{varchar(160)} & & & ja   \\
+    \texttt{favoriteCount} & Anzahl der „Favourites“  & \texttt{int} & & & ja   \\
+    \texttt{retweetCount} & Anzahl der „Retweets“ & \texttt{int} & & & ja   \\
+    \texttt{image} & Url zu einem anhängenden Bild & \texttt{varchar(100)} & & &   \\
+    \texttt{place} & Ort des Tweets & \texttt{varchar(60)} & & &   \\
+    \texttt{createdAt} & Zeitpunkt, wann der Tweet auf Twitter veröffentlicht wurde & \texttt{datetime} & & & ja   \\
+    \texttt{lastUpdate} & Zeitpunkt, wann der Eintrag in die Datenbank erfolgt ist & \texttt{datetime} & & &   \\
+	\bottomrule
+  \end{tabular}
+\end{table}
+
+
+      
+
+
+
+
+
+
+
+

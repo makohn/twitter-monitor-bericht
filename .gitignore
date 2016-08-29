@@ -1,0 +1,17 @@
+*.aux
+*.lol
+*.lof
+*.lot
+*.out
+*.blg
+*.bat
+*.tdo
+*.tps
+*.xml
+*.backup
+*.toc
+*.bbl
+*.log
+*-blx.bib
+*.run.xml
+clear.bat

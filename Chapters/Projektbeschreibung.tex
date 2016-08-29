@@ -1,0 +1,47 @@
+%=========================================
+% 	   Projektbeschreibung				 =
+%=========================================
+\chapter{Projektbeschreibung}
+
+\section{Funktionsweise} 
+
+Die Funktionsweise der Anwendung orientiert sich am bereits beschriebenen allgemeinen Aufbau
+einer Streaming­Anwendung aus zwei Teilen, die unabhängig voneinander arbeiten und nur über
+die Datenbank miteinander in Verbindung stehen.
+
+\section{Datenmodell / Terminologie ­ Twitter}
+
+Der Stream liefert sogenannte Status­Meldungen. Dabei handelt es sich im Grunde genommen um
+eine Zusammenstellung aller Informationen zu einem bestimmten Tweet. Dazu gehören unter
+anderem auch stets alle Informationen zum Autor des Tweets. Wenn es sich um einen Retweet
+handelt, enthält der Status außerdem auch den Status des ursprünglichen Tweets. Da Retweets
+jedoch meist nur der Verbreitung eines Tweets dienen, werden sie in der Anwendung jedoch mehr
+oder weniger ignoriert und lediglich für Aktualisierungen verwendet. Somit sind die zentralen
+Daten, die dem Stream entnommen und in der Datenbank gespeichert werden, Informationen zu
+einem Tweet und seinem Autor.
+
+\section{Mitgliederverwaltung}
+
+Auch wenn das Ziel des Projekt es ist einen möglichst unbeteiligten Einblick in die Twitter-
+Kommunikation zu bieten, besteht auch eine gewisse Notwendigkeit, die Nutzer längerfristig zu
+erfassen, so dass sie Schlüsselwörter hinterlegen können. Das heißt, dass Benutzer sich mit einem
+Benutzernamen und einem Passwort registrieren und anmelden müssen.
+
+\section{Filter­/Suchparameter (Keywords/Prioritäten)}
+
+Die zentralen Parameter, nach denen die Tweets durch den Stream erfasst werden und später dem
+Benutzer präsentiert werden, sind dessen Schlüsselwörter. Für jeden Nutzer werden diese
+Schlüsselwörter dabei mit einer Priorität (1–5) versehen, die angibt, wie wichtig dem Nutzer dieses
+Schlüsselwort ist. So lassen sich die verfügbaren Tweets für einen bestimmten Benutzer immer in
+einer eindeutigen Reihenfolge anzeigen, die durch weitere Filterung anhand eines Schlüsselworts
+verfeinert werden kann.
+
+\section{Zeitplanung / Skalierung}
+
+Zu den größten Herausforderungen des Projekts gehört die Skalierung des Ausmaß der Sammlung
+von Daten. Konkret geht es vor allem um die Frage, welche Daten wie lange gespeichert werden.
+Es muss ein Kompromiss erzielt werden, der sowohl die praktische Durchführbarkeit als auch die
+Relevanz und Verfügbarkeit der Daten für den Endnutzer gewährleistet. Da der Schwerpunkt des
+Interesses auf aktuellen Ereignissen liegt, werden zunächst nur Tweets gesammelt und aufbewahrt,
+die nicht bereits ein gewisses Alter erreicht haben. Das Limit wurde auf 48 Stunden festgelegt. Es
+sollten sich also keine älteren Tweets im System befinden.
