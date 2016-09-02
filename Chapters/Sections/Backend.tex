@@ -58,7 +58,9 @@ und Speicherung in der Datenbank weiter.
 Zum Aufbau der Verbindung zu Twitter wird die Twitter4J-API verwendet, die auch das zugrundeliegende 
 Beobachtermuster festlegt. Dabei handelt es sich um eine einfache Programmierschnittstelle, die den 
 größten Teil der Funktionalität der Twitter REST und Streaming APIs in Form von Java-Klassen zur 
-Verfügung stellt.
+Verfügung stellt. Neben den normalen Twitter Funktionen bietet die Twitter4j die Möglichkeit,
+Anfragen an Twitter zu stellen. Damit kann man Informationen zu Tweets (Name des Autors,
+Anzahl der Likes/Retweets, etc.) oder Autoren erhalten.
 
 \subsubsection*{StreamService}
 In der Anwendung wird der Stream in \textit{StreamService} implementiert. Seine Aufgabe ist es 

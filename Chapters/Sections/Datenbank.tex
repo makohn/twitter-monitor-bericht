@@ -112,10 +112,37 @@ Es wurden zwei Benutzer für die Benutzung der TwitterMonitor-Datenbank angelegt
   \end{tabular}
 \end{table}
 
-
+\begin{table}[!ht]
+\caption{tweetAuthors: Informationen zu dem Benutzer, der den Tweet veröffentlicht hat. }
+  \begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
+    \toprule 
+    \textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
+    \hline 
+    \texttt{autorId} & Eindeutige ID, die von Twitter übernommen wird & \texttt{bigint} & ja && ja   \\
+    \texttt{name} & Benutzername von Twitter, wird mit „@“ angesprochen & \texttt{varchar(15)} & & & ja   \\
+    \texttt{screenName} & Name, wie er bei Twitter angezeigt wird  & \texttt{varchar(20)} & & &   \\
+    \texttt{followerCount } & Anzahl der Benutzer, die diesem Benutzer folgen   & \texttt{int} & & &   \\
+    \texttt{pictureUrl} & Url zum Profilbild & \texttt{varchar(100)} & & &   \\
+    	\bottomrule
+  \end{tabular}
+\end{table}
       
+%\begin{table}[!ht]
+%\caption{users: Stellt unsere Interessenprofile da. Notwendig für die Benutzerverwaltung.}
+%  \begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
+%    \toprule 
+%    \textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
+%    \hline 
+%    \texttt{username} & varchar(60) & \texttt{bigint} & ja && ja   \\
+%    \texttt{email} &  E-Mail Adresse  & \texttt{varchar(60)} & & & ja   \\
+%    \texttt{password} &  Verschlüsselter Password-String & \texttt{varchar(80)} & & & ja  \\
+%    \texttt{enabled} & Gibt an ob das Nutzerkonto aktiv ist oder nicht   & \texttt{tinyint} & & & ja \\
+%    \texttt{registeredAt} & Zeitpunkt, wann das Interessensprofil angelegt wurde & \texttt{datetime)} & & &   \\
+%    	\bottomrule
+%  \end{tabular}
+%\end{table}
 
-
+\todo[inline]{TODO: weitere Entitäten ergänzen. Wirklich an dieser Stelle ? Besser als Anhang ?}
 
 
 

@@ -19,13 +19,13 @@ Benutzer weiter. Die Anfrage vollzieht sich dabei zustandslos. Für jede Anfrage
 TCP­Verbindung zum Anbieter aufgebaut, die (wie jede HTTP­Verbindung) nach der
 Übermittlung der Daten sofort wieder durch den Anbieter­Server beendet wird. \\
 
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=0.85\textwidth]{Graphics/normal_rest_api}
     \caption{Grundprinzip einer REST-API}
    \label{fig:restapi}
 \end{figure}
-
+\newpage
 Das Prinzip einer Streaming API beruht dagegen gerade darauf, die Verbindung zum Daten­Server
 über einen längeren Zeitraum aufrecht zu erhalten. Die Verbindung wird auch hier durch einen
 GET­ oder POST­Request eingeleitet, in dem gewisse Such­ oder vielmehr Filterparameter
@@ -35,7 +35,7 @@ Informationen über zu den Suchparametern passende Ereignisse in Echtzeit. Auf d
 also beim Server der Web­Anwendung können diese Informationen dann aus dem Socket der
 Verbindung gelesen werden. \\
 
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=0.85\textwidth]{Graphics/streaming_api}
     \caption{Grundprinzip einer Streaming-API}
@@ -55,7 +55,9 @@ ist, lassen sich bei einer typischen Streaming API zwei Teile unterscheiden. Der
 Stream wird von einem abgeschlossenen Client­Modul unabhängig vom Nutzer aufgebaut und verwaltet. Er 
 erhält seine Suchparameter aus einer Datenbank, in der auch die empfangenen Daten
 gespeichert werden. Der Zugang zu diesen Daten durch den Nutzer wird etwa durch ein Web-
-Interface hergestellt, für das der zweite Teil als Server zuständig ist. Schnittstellen an. Im 
+Interface hergestellt, für das der zweite Teil als Server zuständig ist. 
+\\\\
+ Twitter bietet insgesamt vier Schnittstellen an. Im 
 Zentrum des Projekts steht der Public Stream.[1] Dieser wird neben anderen
 Suchparametern, wie Standort oder Sprache, vor allem mit einer Liste von bis zu 400
 Schlüsselwörtern initialisiert. Jeder neue Tweet, der einem oder mehreren Keyword entspricht,
