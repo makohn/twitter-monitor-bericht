@@ -43,19 +43,19 @@ Die konkrete Implementierung ist maßgeblich von der Entscheidung für das Sprin
 geprägt. Dieses bietet einerseits eine einfache Möglichkeit zum Aufbau einer Java­Server­basierten
 Web­Anwendung und andererseits eine flexible Datenbank­Schnittstelle. Dadurch ermöglicht es
 die Kapselung der eigentlichen Funktionalität im Java­Code, während die Datenbank und die
-Website unabhängig davon aufgebaut werden können.[6] Auch intern erleichtert Spring den
+Website unabhängig davon aufgebaut werden können. Auch intern erleichtert Spring den
 Aufbau der zweiteiligen Streaming­Architektur (Wiring und DI zur Erstellung des Streams) und
 bietet daneben noch zahlreiche weitere hilfreiche Elemente (Autowiring, Scheduler, Login,
 Verschlüsselung). \\
-Spring besteht aus einzelnen Komponenten, die (teilweise?) unabhängig voneinander je nach
+Spring besteht aus einzelnen Komponenten, die unabhängig voneinander je nach
 Bedarf verwendet werden können.
-Das Grundprinzip von Spring[7] besteht in der deklarativen (???) Art der Objekterstellung durch
+Das Grundprinzip von Spring besteht in der deklarativen Art der Objekterstellung durch
 Wiring und Dependency Injection. Darunter versteht man die automatische Erstellung und
-Referenzierung von Objekten in einem gemeinsamen Application Context.[8] Explizite
+Referenzierung von Objekten in einem gemeinsamen Application Context. Explizite
 Konstruktoraufrufe (in einem Boiler Plate­Code) sind nicht mehr notwendig. Da es sich bei allen
-Objekten in der Anwendung außerdem um Einzelstücke[9] selbsterstellter Klassen handelt, kann
+Objekten in der Anwendung außerdem um Einzelstücke selbsterstellter Klassen handelt, kann
 selbst die Deklaration an sich dem Autowiring überlassen werden. Alle Klassen, die als zu
-erstellende Beans/Komponenten[10] markiert sind, werden beim Anwendungsstart mit Referenzen
+erstellende Beans/Komponenten markiert sind, werden beim Anwendungsstart mit Referenzen
 auf andere Beans/Komponenten aus dem Application Context, die anhand des benötigten
 Datentyps identifiziert werden, instantiiert.
 In der Anwendung wird diese grundlegende Architektur unter anderem auch verwendet, um zum
