@@ -3,101 +3,215 @@
 %=========================================
 \section{Backend}
 
-\subsection{Priorisierung von Tweets}
+Die Geschäftslogik einer Spring-Anwendung ist in den einzelnen, sogenannten Services, im 
+weiteren Sinne des Begriffs, gekapselt. Dabei handelt es sich um herkömmliche Komponenten des 
+\texttt{Application Contexts}. In der Anwendung lassen sich diese in drei Kategorien einteilen, 
+die dem Aufbau der typischen 2-teiligen Architektur einer Streaming-Anwendung dienen. Die 
+Klassen \texttt{StreamService} und \texttt{StatusService} sind dabei für den Aufbau und die 
+Verwaltung des Streams zuständig. \texttt{TweetService} und \texttt{UserService} ermöglichen die 
+Interaktion mit den Controllern und somit dem Benutzer am Frontend der Anwendung. Bei ihnen 
+handelt es sich um die Services im engeren Sinne, die dementsprechend auch als solche annotiert 
+werden. Die Schnittstelle zur Datenbank für beide Teile bieten eine Reihe von DAO-Services
+\footnote{Data Access Objekt}. In diesem Abschnitt sollen die konkreten Aufgaben dieser 
+einzelnen Teile und verschiedene Alternativen zu ihrer Bewältigung mit ihren jeweiligen 
+Problemen vorgestellt werden.
 
-In diesem Abschnitt soll dargestellt werden, wie die Tweets bewertet bzw. priorisiert 
-werden. Mithilfe eines selbst geschriebenen Algorithmus wird dies im Twitter-Monitor 
-realisiert. 
-\begin{description}
-	\item [Ziele:] Durch eine Priorisierung der Daten sollen dem Nutzer eine selektierte Auswahl von wichtigen bzw. interessanten Tweets angezeigt werden. 
-	\item [Kriterien:] zur Priorisierung der Daten aufgelistet:
-	\begin{itemize}
-		\item Anzahl Retweets des Tweets 
-		\item Anzahl Likes des Tweets
-		\item Anzahl Follower des Tweet-Autors
-		\item Alter des Tweets
-		\item Interesse des Benutzers
-	\end{itemize}
-\end{description}
+\subsection{Controller und Services}
+\subsubsection*{Controller}
+In einer Spring-Web-Anwendung werden die ankommenden HTTP-Anfragen von den entsprechenden 
+Controller-Methoden, die als RequestHandler annotiert sind, verarbeitet. Die Aufgabe eines 
+Controllers beschränkt sich dabei darauf eine Darstellungsform, etwa in Form einer JSP-Datei, 
+zusammen mit einem eventuell nötigen Datenmodell zu liefern. Gemäß der Spring-Dokumentation soll 
+keine konkrete Funktionalität in den Controllern implementiert sein. Sie nutzen dafür die Services. 
+Die Anfrageparameter für die Services, etwa bei der Erstellung eines neuen Keywords, erhalten die 
+Controller-Methoden aus JSON-Objekten. In den meisten Fällen ist in der Anwendung jedoch keine 
+Übergabe von Daten erforderlich. Um die Anfragen für einen bestimmten Benutzer durchzuführen, 
+erhalten sie jedoch in der Regel auch den Benutzernamen der aktuellen Session \footnote{vgl. 
+\autoref{subsec:spring_security}: Spring Security Module} Dieser kann von einem jederzeit 
+verfügbaren Principal-Objekt angefordert werden \footnote{Die JSONs und das Principal-Objekt werden 
+als Parameter des RequestHandlers angegeben und sind dann in dessen Kontext verfügbar}.
 
-\subsubsection*{Schritt 1: Algorithmus ausdenken}
-
-Likes und Retweets werden ins Verhältnis zu der Anzahl Followern gestellt. Retweets sind 
-unserer Meinung nach wichtiger als Likes, deswegen haben diese einen entsprechenden 
-Faktor. Zuletzt wird mit 100 multipliziert, damit das Ergebnis nicht so viele 
-Nachkommastellen hat und unter 1 liegt:
- 
-\begin{equation}
-\frac{\frac{Likes}{2} + Retweets \cdot 2}{Follower} \cdot 100
-\quad
-\text{\textit{Priorisierung eines Tweets}}
-\end{equation}
-Das Ergebnis wird folgendermaßen in fünf Prioritätsstufen unterteilt (1 = höchste bis 5 = 
-niedrigste):
-\begin{itemize}
-  \item Prio 1: >= 1
-  \item Prio 2: >= 0,5
-  \item Prio 3: >= 0,1
-  \item Prio 4: >= 0,05
-  \item Prio 5: < 0,05 
-\end{itemize}
+\subsubsection*{Services}
+Die Services einer Spring-Anwendung im engeren Sinne sind im Wesentlichen Fassaden, die die von den 
+Controllern benötigten und von den anderen Services im weiteren Sinne des Wortes bereitgestellte 
+Funktionalitäten zur Bearbeitung und Abfrage von Daten in einem übersichtlichen Interface bündeln. 
+In der vorliegenden Anwendung handelt es sich dabei um TweetService und UserService. Da ihre Aufgabe 
+sich darin erschöpft Daten von den Controllern in die Datenbank zu übertragen und umgekehrt, handelt 
+es sich bei beiden Klassen lediglich um Wrapper, die Anfragen der Controller an die DAOs 
+weiterreichen. Obwohl dieser Zwischenschritt über die Services somit im Grunde genommen überflüssig 
+ist, wird er trotzdem genommen, um die Erweiterbarkeit der Anwendung sicherzustellen. Zusätzliche 
+Bearbeitung von angefragten Daten durch das Backend könnte jederzeit eingefügt werden ohne die DAO-
+Klassen verändern zu müssen.
 \newpage
-Je nach Alter  des Tweets wird dieser anders bewertet. Dies geschieht mithilfe eines  
-Faktors in folgender Staffelung: 
-\begin{table}[!hb]
-\centering
-  \begin{tabular}{ll}
-  \toprule
-    \textbf{Alter} & \textbf{Faktor}  \\
-    \hline
-    < 1 Tag & 1 \\
-    < 2 Tage & 0,9 \\
-    < 3 Tage & 0,6 \\
-    < 5 Tage & 0,3 \\
-    > 5 Tage & 0,1 \\
-    \bottomrule
-  \end{tabular}
-  \caption{Staffelung von Tweets nach Alter}
-\end{table}
-\subsubsection*{Auffälligkeiten}
-\begin{itemize}
-	\item \textbf{Problem:} Anzahl Likes und Retweets sind am Anfang nicht vorhanden. \\ \textbf{Lösung:} Tweets werden nach einer gewissen Zeit nochmals abgefragt. Zusätzlich wird, wenn ein Retweet eines vorhandenen Tweets über den Stream eingeht, die Daten des Original Tweets aktualisiert. 
-	\item \textbf{Problem:} Errechnete Priorität ist mit dieser Formel nicht optimal. Beispielsweise sind Tweets mit nur 2-3 Retweets und keinem Likes und dessen Autor nur 1 Follower hat, viel zu hoch priorisiert. Bsp.: Likes = 30, Retweets = 2, Follower = 1 führt zu einer Prio von 1900. Es handelt sich hierbei oft um Spam oder Werbung. \\ \textbf{Lösung:} Die Statistik wird geglättet, indem die Anzahl Follower mit einer festen Konstante addiert werden. Eventuell kann auch die Anzahl der Follower in der Formel mithilfe einer Exponentialfunktion oder Wurzelfunktion unterstützt werden. 
-	\item \textbf{Problem:} Durch Unterteilung der errechneten Priorität in verschiedene Stufen, gehen Informationen verloren \\ \textbf{Lösung:} Unterteilung in Prioritätsstufen wird nicht mehr durchgeführt.
-\end{itemize}
-    
-\subsubsection*{Schritt 2: Algorithmus nach Erfahrungswerten verfeinern}
+Die Aufgaben der Controller und Services im engeren Sinne werden vom \textit{Spring Framework} 
+bereits stark festgelegt. Da in der Interaktion mit dem Frontend keine besonderen Bearbeitungen der 
+Daten durchgeführt werden, sind bei der Implementierung keine Schwierigkeiten aufgetreten.
 
-Von der Anzahl der Follower wird nun die Wurzel gezogen. Dies hat zur Folge, dass Twitter-
-Nutzer mit wenig Followern abgeschwächt werden. Dasselbe wird auch durch die zusätzliche 
-Addition mit 100 erreicht, zusätzlich ist hier eine statistische Glättung mit 
-einbegriffen. Im Vergleich zur alten Formel sind die Retweets ein wenig abgeschwächt, da 
-öfters Tweets aufgetaucht sind, die nur darauf abgezielt haben so viele Retweets wie 
-möglich zu ernten. 
- 
-\begin{equation}
-\frac{\frac{Likes}{2} + Retweets}{\sqrt{Follower} + 100} 
-\quad
-\text{\textit{Priorisierung eines Tweets, zweiter Versuch}}
-\end{equation}
-%
-\newpage
-%
-\subsubsection*{Schritt 3: Tweets nach Interessen des Benutzers einstufen}
+\subsection{Stream}
+Das Kernstück der Anwendung ist die Verbindung zu Twitter, über die sie mit neuen Tweets versorgt wird. 
+Für den Stream selbst sind in der Anwendung die Komponenten StreamService, TweetListener und 
+StatusService verantwortlich. Der StreamService stellt die eigentliche Verbindung zu Twitter her. Der 
+TweetListener hört diese Verbindung ab und gibt empfangene Tweets an den StatusService zur Bearbeitung 
+und Speicherung in der Datenbank weiter.
 
-Der Benutzer hat die Möglichkeit jeden seiner Keywords eine Wichtigkeit \(\kappa\) zuzuteilen. Dabei reicht 
-die Skala von 1 (wenig interessant) bis 5 (sehr interessant).  Wenn ein Tweet auf mehrere vom Benutzer 
-eingestellten Keywords zutrifft, werden diese addiert. Anschließend wird mit 0,2 multipliziert. Dies ist ein 
-ausgedachter Wert, damit bei einer Wichtigkeit von 5 der Tweet die gleiche Priorität wie vorher hat. 
+\subsubsection*{Twitter4J}
+Zum Aufbau der Verbindung zu Twitter wird die Twitter4J-API verwendet, die auch das zugrundeliegende 
+Beobachtermuster festlegt. Dabei handelt es sich um eine einfache Programmierschnittstelle, die den 
+größten Teil der Funktionalität der Twitter REST und Streaming APIs in Form von Java-Klassen zur 
+Verfügung stellt.
 
-\begin{equation}
-\frac{\frac{Likes}{2} + Retweets}{\sqrt{Follower} + 100} \cdot 0.2 \cdot \kappa 
-\quad
-\text{\textit{Individuelle Priorisierung eines Tweets}}
-\end{equation}
-\bigskip 
+\subsubsection*{StreamService}
+In der Anwendung wird der Stream in \textit{StreamService} implementiert. Seine Aufgabe ist es 
+sicherzustellen, dass zu jeder Zeit ein Stream existiert, der auf die aktuellen Keywords aller 
+Benutzer ausgerichtet ist. Zu Beginn der Laufzeit wird \textit{StreamService} als Komponente 
+instantiiert. Im Konstruktor wird dabei der erste Stream erstellt und initialisiert. Die Konfiguration 
+bei der Erstellung betrifft vor allem die \textit{OAuth}-Authentifizierung, die die Anwendung 
+gegenüber Twitter identifiziert \footnote{Oauth weiter ausführen oder auf Kap 1 verweisen (Twitter API 
+Beschreibung)}. Außerdem muss dem Stream ein Listener gegeben werden, der vor allem ankommende 
+\textit{Status}-Objekte weiterleitet. Für die eigentliche Initialisierung des Streams wird ihm 
+schließlich ein Array von Schlüsselwörtern übergeben. Die Schlüsselwörter lädt der 
+\textit{StreamService} direkt mit einer entsprechenden Methode des \textit{KeywordDao}. Von nun an 
+empfängt der Listener alle Tweets, die den Keywords entsprechen. \footnote{Vgl. Beschreibung der 
+Funktionalität von Keywords in Kapitel 3 [muss noch geschrieben werden, aber da gehört es hin]}
+\\\\
+Obwohl der Aufbau der Verbindung selbst keine Probleme bereitet, gibt es jedoch gewisse Schwierigkeiten 
+bei der Verwaltung der Verbindung über längere Zeit.
 \begin{description}
-	\item [Beispiel:] \hfill \\\\ Eingestellte Keywords: BVB (Wichtigkeit=5), Bundesliga (Wichtigkeit=3) \newline Tweet: „BVB empfängt zum Auftakt in der Bundesliga Mainz 05“ \newline Allgemeine Tweet-Priorität: 10 \newline Benutzer-spezifische Priorität: \(10 * ((5 + 3) * 0,2) = 16 \) 
+	\item [Aktualisierung der Keyword-Liste:] Insbesondere die Aktualisierung der Keyword-Liste eines laufenden Streams stellt ein Problem dar. Wenn ein Benutzer ein neues Schlüsselwort zu seiner Liste hinzufügt, das noch nicht von einem anderen Nutzer gesucht wird, sollte die Keyword-Liste des Streams möglichst zeitnah erweitert werden. Das Gleiche gilt bei einem bestehendes Keyword, für das sich kein Benutzer mehr interessiert, und somit nur unnötig die Bandbreite der Verbindung blockiert. Da es nicht möglich ist die Keyword-Liste eines laufenden Streams zu verändern,\footnote{Die naheliegende Lösung} muss der Stream dazu neu gestartet werden. %TODO footnote ergänzen
+		Der erste Lösungsansatz ist dementsprechend ein einfacher, regelmäßiger Neustart des 
+		Streams gewesen. Zu viele Neustarts in zu kurzer Zeit durch die gleiche Anwendung werden 
+		von Twitter jedoch mit einer Blockierung für eine bestimmte Zeit geahndet. Zudem besteht 
+		bei der großen Geschwindigkeit, mit der Tweets durch den Stream eintreffen, eine hohe 
+		Wahrscheinlichkeit, dass während eines Neustarts einige Tweets verpasst werden. Bei einem 
+		zu geringen Zeitintervall für den Neustart können so leichter Tweets verloren gehen und es 
+		besteht außerdem die Gefahr einer Blockierung durch Twitter. Wird das Zeitintervall 
+		hingegen zu hoch gesetzt, so werden die neuen Keywords der Benutzer nicht schnell genug 
+		auf den Stream angewendet. Auch dadurch gehen somit Tweets, die diesen Keywords 
+		entsprechen und in der Zwischenzeit entstehen, verloren.
+		Die Lösung dieses Dilemmas liegt darin, den Neustart nur dann durchzuführen, wenn auch 
+		wirklich neue Keywords vorliegen. In einem ersten Ansatz wurde eine expliziter 
+		Methodenaufruf durch die entsprechenden Methoden des UserService, die für Änderungen an 
+		den Keywords verantwortlich sind, zu machen. Diese Lösung ist jedoch nicht praktikabel, da 
+		bereits das mehrfache Hinzufügen von Keywords durch einen einzelnen Benutzer auch 
+		mehrfache Neustarts bedeuten würden. Die Verknüpfung des Neustarts mit der Erstellung und 
+		dem Löschen von Keywords bedeutet einen Kontrollverlust.
+		Stattdessen wird nun in regelmäßigen Abständen überprüft, ob ein Neustart aufgrund einer 
+		veränderten Liste notwendig ist. Dazu wird der Scheduler verwendet, der von Spring-Core 
+		bereitgestellt wird. Damit lässt sich eine bestimmte Methode in Intervallen oder zu 
+		bestimmten Zeitpunkten aufrufen.\footnote{Die Methode muss lediglich mit einer 
+		entsprechenden Annotation gekennzeichnet werden.} Da das Hinzufügen und Entfernen von 
+		Keywords durch einen Benutzer eher zu den Ausnahmefällen gehört, lohnt sich die Prüfung, ob
+		die Liste sich geändert hat. Die Prüfung kann ruhig öfter stattfinden, da ein Neustart nur 
+		selten erforderlich sein wird. Die Kosten der Prüfung selbst betragen vor allem eine Anfrage 
+		an die Datenbank. Diese liefert den eigentlichen Maßstab für die Wahl des Zeitintervalls. In 
+		der Anwendung werden die Keywords einmal in der Minute geprüft.
+	\item [Unerwartete Abbrüche:] Weitere Probleme im Zusammenhang mit der Aufrechterhaltung des Streams sind Ausnahmesituationen, in denen der Stream etwa nicht korrekt startet oder unerwartet beendet wird. Auch diese Möglichkeiten würden durch den regelmäßigen Neustart des Streams abgedeckt werden. Da dieser jedoch nicht garantiert werden kann, wird auch ein unbedingter Neustart in einem größeren Zeitintervall von einem Tag durchgeführt. So wird sichergestellt, dass der Stream auch ohne Beobachtung über einen längeren Zeitraum erhalten bleibt.
 \end{description}
-Die Priorität der Tweets wird somit erst berechnet, wenn der Benutzer diese braucht und nicht mehr beim 
-Eintreffen eines jeden einzelnen Tweets. Dies soll die Performance erhöhen und Last vom Server nehmen. 
+\subsubsection*{TweetListener}
+Der \textit{TweetListener} implementiert das \textit{StatusListener-Interface} der Twitter4J-API. Er 
+wird dem Stream des StreamService als Beobachter hinzugefügt. Jeder Tweet aus dem Stream führt zu 
+einem Aufruf der Methode onStatus(), die dabei ein Status-Objekt erhält, das direkt weiter an den 
+StatusService gereicht wird. Jegliche Bearbeitung wird dort durchgeführt. \\\\
+Die weiteren Methoden des TweetListeners reagieren auf Meldungen, die den Zustand des Streams 
+betreffen. Auf dem aktuellen Stand des Projekts werden sie nicht verwendet. Sie könnten jedoch 
+eingesetzt werden, um flexibler auf unerwartete Probleme, etwa mit einem Neustart des Streams,  zu 
+reagieren. \newpage 
+\begin{description}
+	\item [Eventuelle Probleme mit der Synchronisierung:] Während des Projekts kam die Vermutung auf, dass der Aufruf der onStatus()-Methode asynchron verläuft. Das hätte geheißen, dass jeder Tweet zur Erstellung eines neuen Threads führt. Entsprechend hätte die Möglichkeit bestanden, dass mehrere Threads zur gleichen Zeit einen Status an StatusService übergeben. Dies hätte zu Ressourcenkonflikten führen können. Die Annahme hat sich jedoch mittlerweile als unbegründet herausgestellt. Die einzigen asynchronen Nachrichten in der Anwendung werden durch Scheduler-Aufrufe gesendet.
+\end{description}
+\subsubsection*{StatusService}
+Die Aufgabe des \textit{StatusService} ist die Erstellung von Instanzen der internen Datenmodelle für 
+Tweets und Autoren aus den \textit{Status}-Objekten, die er vom \textit{TweetListener} erhält. Diese 
+werden dann mit Hilfe der entsprechenden DAOs in die Datenbank übertragen. Der \textit{StatusStream} 
+ist dabei zunächst dafür verantwortlich, dass im Falle eines Retweets der ursprüngliche Tweet aus dem 
+\textit{Status}-Objekt bearbeitet wird. Um die Anzahl der erfassten Tweets zu verringern, werden 
+außerdem keine Retweets von älteren Nachrichten gespeichert.
+Hinsichtlich seiner Aufgabe ähnelt der \textit{StatusService} stark den Services im engeren Sinne mit
+der Unterschied, dass diese die Controller, also das Frontend, mit den DAOs verbinden. Aufgrund der 
+erfahrungsgemäß zu erwartenden Geschwindigkeit von eintreffenden Tweets würde eine einfache Übergabe 
+der Tweets und Autoren an das entsprechende DAO nach der Erstellung eine entsprechend hohe Anzahl von 
+Datenbankverbindungen bedeuten. Um diese zu reduzieren, werden Tweets und Autoren zunächst in einer 
+HashMap zwischengespeichert und in einem Batch-Update gespeichert. Besonders aktive Autoren mit 
+vielen Tweets in kurzer Zeit und häufige Retweets eines bestimmten Tweets werden dabei auch nur 
+einmal übertragen. Dies bedeutet eine kleine Performance-Verbesserung.
+\\\\
+Obwohl mit einer sequentiellen Ankunft der Tweets gerechnet werden kann, ist die Klasse letztlich als 
+Monitor implementiert. Dies liegt daran, dass auch hier der \textit{Scheduler} eingesetzt wird, um in 
+regelmäßigen, kurzen Abständen eine Methode aufzurufen, die die Tweets und Autoren aus den Buffern in 
+die Datenbank lädt. Da diese Methode somit asynchron in einem eigenen Thread aufgerufen wird, kann es 
+zu einem Resourcenkonflikt beim Aufruf kommen. Indem die beiden Methoden des StatusService als 
+„synchronized“ definiert werden, wird die gleichzeitige Ausführung beider Methoden und somit der 
+gleichzeitige Schreib- und Lesezugriff auf die Buffer verhindert. Ohne den \textit{Scheduler} könnte 
+auch eine nicht-synchronisierte Implementierung verwendet werden, bei der die Buffer immer ab einer 
+gewissen maximalen Größe geleert werden. Diese sequentielle und somit einfachere Lösung hätte jedoch 
+den Nachteil, dass nicht absehbar ist, wie schnell ein gesetztes Limit erreicht wird.\footnote{Bei
+der großen Menge an Tweets, die in einem realistischen Szenario vorliegt, ist dieser Punkt 
+selbstverständlich releativ.} Es werden zwar Tweets erfasst, aber solange das Limit nicht erreicht 
+ist, werden sie nicht in die Datenbank übertragen und sind auch nicht vom Benutzer einsehbar. Auch
+hier lässt sich durch den \textit{Scheduler} die 
+Kontrolle über die Ereignisse behalten. Die Anzahl der Datenbankzugriffe in einem bestimmten Zeitraum 
+durch den \textit{StatusService} kann so genau festgelegt werden.
+
+\subsection{Data Access Objects} 
+\subsubsection*{Datenquelle mit Pooling}
+Die MySQL-Datenbank der Anwendung wird in der web.xml-Datei des Spring Frameworks als eine 
+Datenquelle, ein Datasource-Objekt, konfiguriert, das damit für die Erstellung der DAOs als 
+Komponente ApplicationContext verfügbar ist. Spring übernimmt dabei die Verwaltung der 
+Datenbankverbindungen in einem Verbindungspool.
+
+\subsubsection*{Anfragen mit DAOs}
+Jedes DAO entspricht einer Klasse des Datenmodells. Ihre Aufgabe ist das Speichern, Laden und 
+Bearbeiten der Daten von Objekten des jeweiligen Datentyps in der Datenbank. Spring bietet zur 
+Durchführung von SQL-Anfragen JDBC-Template-Klassen an, die bei der Erstellung eines DAOs mit der in 
+der web.xml-Datei definierten Datenquelle initialisiert werden. Für eine Anfrage an die Datenbank 
+werden dem Template ein Prepared Statement \footnote{Ein String mit einem SQL-Statement mit eventuellen Platzhaltern.} sowie eventuelle Parameter übergeben. Die Erstellung der 
+angefragten Objekte aus den einzelnen Zeilen des Ergebnisses übernimmt ein RowMapper, der für eine 
+bestimmte Anfrage-Methode jeweils als innere Klasse definiert wird. Die Trennung von Prepared 
+Statement und Parametern verhindert eine SQL Injection durch eine User-Anfrage. Das JDBC-Template 
+stellt sicher, dass die Parameter als solche eingefügt werden und nicht selbst als SQL-Code 
+interpretiert werden.
+
+\subsubsection*{DAOs im TwitterMonitor}
+In der Anwendung existieren vier DAOs für die Modell-Klassen User, Keyword, Author und Tweet. Die 
+DAOs der ersten drei Datentypen bieten keine größeren Besonderheiten. TweetDao ist aufwändiger.
+
+\begin{description}
+	\item [User] Der UserDao-Service wird nur dazu verwendet einen neuen Nutzer auf Anfrage des UserService in der Datenbank einzutragen oder zu löschen.\footnote{Auf dem aktuellen Stand sind Email-Benachrichtigung und Email-Ändern noch nicht implementiert. Würde aber auch mit insert on duplicate key implementiert werden.} Die Abfrage nach vorhandenen Benutzern in der Datenbank beim Login wird automatisch von Spring-Security durchgeführt.\footnote{Siehe entsprechenden Abschnitt.} Das Einfügen eines Benutzers betrifft dabei zwei Tabellen, die (im Sinne des Spring Frameworks) einerseits den eigentlichen Nutzer und andererseits dessen unterschiedlichen Rollen festhalten. Da in der vorliegenden Anwendung nicht zwischen verschiedenen Rollen unterschieden wird, könnte darauf verzichtet werden. Das Spring Framework verlangt jedoch eine Rolle beim Login. Im Datenmodell User können die Daten der beiden Tabellen zusammengefasst werden, da es keinen Nutzer mit mehreren Rollen gibt.
+	\item [Keyword] Das KeywordDao liefert einerseits dem StreamService eine duplikatfreie Liste aller Schlüsselwörter, die in der Datenbank gespeichert sind.\footnote{Ein TwitterStream der Twitter4J-API erfordert ein String-Array.} Andererseits ist er auf Anfrage des UserService für das Einfügen, Entfernen und Laden von Schlüsselwörtern zuständig. Beim Einfügen von Duplikaten wird dabei stets ein Update der Priorität und des Aktiv-Status durchgeführt. Das Einfügen dient also auch der Änderung dieser Werte. Beim Laden der Liste eines Nutzers können entweder die positiven oder die negativen Schlüsselwörter angefragt werden.
+	\item [Author] Der AuthorDao dient nur zum Einfügen von Autoren in die Datenbank, die zuvor anhand eines Status-Objekts erstellt werden. Um die Anzahl von Datenbank-Aufrufen zu reduzieren werden die erstellten Autoren dabei gepuffert und mit einem Batch-Update eingefügt. Wenn ein bereits vorhandener Autor seine Daten in der Zwischenzeit geändert hat, werden diese Änderungen übernommen. Da alle Ausgabeinformationen in OutputTweet-Objekten enthalten sind, die im TweetDao erstellt werden, müssen die in der Datenbank vorhandenen Autorendaten nicht für sich abgefragt werden. Das Löschen der Autoren wird durch ein Event in der Datenbank sichergestellt.\footnote{Siehe entsprechenden Abschnitt.}
+	\item [Tweet] Mit dem TweetDao werden zunächst die aus einem Status-Objekt erstellten Tweets in die Datenbank eingefügt. Insbesondere im Falle von Retweets sind schon entsprechende TweetIds in der Datenbank vorhanden. Die Einträge werden dann stets auf den neuesten Stand gebracht.
+\end{description}
+Doch die eigentliche Herausforderung besteht in der Abfrage der Daten für die Ausgabe. Einerseits ist 
+sowohl die Anzahl der Tweets an sich als auch die Anzahl der Tweets, die zu den Schlüsselwörtern eines 
+Benutzers passen, so groß, dass eine entsprechende Datenbankanfrage sehr viel Zeit beansprucht. 
+Andererseits enthält ein OutputTweet unter anderem auch eine Liste von Keywords, die nicht mit einer 
+Anfrage erfasst werden können.\footnote{Es muss noch geprüft werden, ob dies nicht doch im SQL-Statement erledigt werden kann.}
+In einer frühen Version wurde dafür eine gesonderte Abfrage für jeden einzelnen Tweet im RowMapper 
+gemacht. In dieser Version wurde auch noch mit mehreren Bild-Urls pro Tweet gerechnet. Auch diese wurde 
+für jeden Tweet in einer eigenen Anfrage geladen. Somit wurden für jeden Tweet zwei weitere Anfragen 
+gemacht. Ab einer gewissen Anzahl von Tweets überlastete dies offensichtlich den Datenbankzugriff.
+Als Lösung wurde zunächst nur noch von höchstens einem Bild pro Tweet ausgegangen. Somit muss nur noch 
+eine Liste für die Keywords erstellt werden. Dazu werden zunächst alle Tweets inklusive eines 
+Schlüsselworts geladen. Bei mehreren Schlüsselwörtern pro Tweet ist dieser auch mehrfach in der Liste 
+vertreten. Diese Liste wird durchlaufen. Dabei wird das jeweils erste Vorkommen eines Tweets mit seiner 
+TweetId als Schlüsselwert in einer HashMap hinterlegt und die Schlüsselwörter weiterer Vorkommen in die 
+Keyword-Liste des Tweets in der HashMap eingefügt. Das Einfügen in die HashMap hat einen konstanten 
+Aufwand. Somit ist der schlimmste Fall eine duplikatfreie Liste von Tweets mit einem linearen Aufwand.
+\\\\
+Eine weitere Herausforderung besteht in der Einführung von auszuschließenden Schlüsselwörtern. Die dazu 
+passenden Tweets werden in einer inneren SQL-Anfrage geladen und gelten für die eigentliche Anfrage als 
+Ausschlusskriterium. Dies bedeutet immer auch eine doppelte Anfrage und somit doppelte Belastung der 
+Datenbank.
+\\\\
+Die Ausgabe der Tweets ist absteigend nach der Priorität geordnet und auf ein bestimmtes Limit beschränkt. 
+So kann die maximale Anzahl der Tweets, die einem Benutzer angezeigt werden, festgelegt werden. Da die 
+Such- und Sortiertfunktionen der Anzeige im Frontend jedoch allein in JavaScript implementiert sind, 
+ergibt sich damit das Problem, dass dem Nutzer nicht alle Daten zur Verfügung stehen.\footnote{Die Suchfunktion könnte etwa auch durch einen Controller-Aufruf in der Datenbank alle Tweets durchsuchen und so ein besseres Ergebnis liefert.}
+
+
+
+
+
+
+
+
