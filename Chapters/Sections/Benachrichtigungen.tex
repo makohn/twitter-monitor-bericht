@@ -1,0 +1,28 @@
+%=========================================
+% 	   Benachrichtigungen				 =
+%=========================================
+\section{Benachrichtigungen}
+
+Dieser Abschnitt handelt davon, wie Benutzer automatisiert über interessante Tweets informiert werden.
+\\\\
+Um dies zu realisieren gibt es die Entitäten „notifications“ und „notificationType“. Hier werden Informationen gespeichert wie Betreff, Inhalt, Empfänger, Benachrichtigungsart und ein Zeitstempel, der angibt, wann die Benachrichtigung versendet wurde. Letztes dient zu gleich auch zur Überprüfung, ob die Benachrichtigung noch zum Versand ansteht.
+\\\\
+Mit einem Datenbank-Event werden täglich um 08:00 Uhr und um 20:00 Uhr die fünf interessantesten Tweets für jeden Benutzer ermittelt und in die Entität „notifications“ eingetragen. Der Inhalt ist im HTML-Format. Dies soll sicherstellen, dass die Tweets in der E-Mail dem Benutzer optisch genauso wie auf der Webseite präsentiert wird.
+\\\\
+In der JAVA-Anwendung werden die noch ausstehenden Benachrichtigungen in der Klasse „NotficationDao“ mithilfe der Funktion "getNotificationsNotSent()" ermittelt und als Liste mit Objekten vom Typ "Notification" zurückgegeben.
+\\\\
+Nun wird noch eine Methodik benötigt, dass in einem gewissen Zeitintervall, die noch ausstehenden Benachrichtigungen ermittelt und anschließend versendet. Hierzu wird eine Klasse namens „NotificationJobManager“ implementiert. Über die eingebundenen Klassen „Timer“ und „TimerTask“ aus dem „java-util“-Package lässt sich ein Dienst realisieren, der in einem angegebenen Zeitintervall immer wieder einen bestimmten Code ausführt.
+\\\\
+Der Dienst lässt sich über die Methoden start() und stop()-Methode starten und beenden. Wenn der Dienst läuft und eine Benachrichtigung zum Versand ansteht, wird zuerst überprüft, welche Benachrichtigungsart gesetzt ist. Anschließend wird die entsprechende Strategie gestartet und der Benutzer erhält seine Neuigkeiten.
+\\\\
+Sobald eine Benachrichtigung versendet wurde, wird sie entsprechend markiert. Hierzu wird der Zeitstempel mit der aktuellen Uhrzeit zur entsprechenden Notification in der Datenbank gesetzt.
+
+\subsection{per E-Mail}
+
+Im Folgenden wird die Funktionsweise der Benachrichtigungen über E-Mail erläutert.
+\\\\
+Jeder Benutzer hat eine E-Mail-Adresse hinterlegt. Diese wird als Empfänger-Adresse genutzt, wenn Benachrichtigungen mit der entsprechenden Benachrichtigungsart zum Versand anstehen.
+\\\\
+Um den Versand per E-Mail zu realisieren wurde eine Google-Mail-Adresse angelegt und die Klasse "MailSender" implementiert. Diese meldet sich zuerst bei Google mit Benutzername und Passwort an und versendet dann die E-Mail mithilfe des Protokolls SMTP.
+\\\\
+\todo[inline]{TODO: Warum per Google-Mail ?}
