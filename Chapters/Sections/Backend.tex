@@ -11,9 +11,9 @@ Klassen \texttt{StreamService} und \texttt{StatusService} sind dabei für den Au
 Verwaltung des Streams zuständig. \texttt{TweetService} und \texttt{UserService} ermöglichen die 
 Interaktion mit den Controllern und somit dem Benutzer am Frontend der Anwendung. Bei ihnen 
 handelt es sich um die Services im engeren Sinne, die dementsprechend auch als solche annotiert 
-werden. Die Schnittstelle zur Datenbank für beide Teile bieten eine Reihe von DAO-Services
-\footnote{Data Access Objekt}. In diesem Abschnitt sollen die konkreten Aufgaben dieser 
-einzelnen Teile und verschiedene Alternativen zu ihrer Bewältigung mit ihren jeweiligen 
+werden. Die Schnittstelle zur Datenbank für beide Teile bieten eine Reihe von DAO-Services.\footnote{Data Access Objekt} 
+In  diesem Abschnitt sollen die konkreten Aufgaben dieser einzelnen Teile und verschiedene Alternativen zu 
+ihrer Bewältigung mit ihren jeweiligen 
 Problemen vorgestellt werden.
 
 \subsection{Controller und Services}
@@ -26,7 +26,7 @@ keine konkrete Funktionalität in den Controllern implementiert sein. Sie nutzen
 Die Anfrageparameter für die Services, etwa bei der Erstellung eines neuen Keywords, erhalten die 
 Controller-Methoden aus JSON-Objekten. In den meisten Fällen ist in der Anwendung jedoch keine 
 Übergabe von Daten erforderlich. Um die Anfragen für einen bestimmten Benutzer durchzuführen, 
-erhalten sie jedoch in der Regel auch den Benutzernamen der aktuellen Session \footnote{vgl. 
+erhalten sie in der Regel lediglich den Benutzernamen der aktuellen Session.\footnote{vgl. 
 \autoref{subsec:spring_security}: Spring Security Module} Dieser kann von einem jederzeit 
 verfügbaren Principal-Objekt angefordert werden \footnote{Die JSONs und das Principal-Objekt werden 
 als Parameter des RequestHandlers angegeben und sind dann in dessen Kontext verfügbar}.
