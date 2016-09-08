@@ -1,1 +1,0 @@
-System.out.println{"Hallo Welt"};

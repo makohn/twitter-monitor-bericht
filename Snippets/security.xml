@@ -1,0 +1,26 @@
+<security:authentication-manager>
+	<security:authentication-provider>
+		<security:jdbc-user-service
+			data-source-ref="dataSource"
+			authorities-by-username-query=
+				'select * from authorities where binary username = ?'
+			users-by-username-query=
+				'select * from users where binary username = ?'
+			id="jdbcUserService"/>
+	</security:authentication-provider>
+</security:authentication-manager>
+
+<security:http use-expressions="true">
+	<security:csrf disabled="true" />
+	<security:intercept-url pattern="/" access="permitAll"/> 
+	<security:intercept-url pattern="/newAccount" access="permitAll"/>
+	<security:intercept-url pattern="/showTweets" 
+							access="isAuthenticated()" />
+	<security:intercept-url pattern="/changePriority" 
+							access="permitAll"/>
+	<security:form-login login-page="/" 
+			  login-processing url="/j_spring_security_check" 
+			  password-parameter="j_password"
+              username-parameter="j_username" 
+              default-target-url="/showTweets"/>
+</security:http>

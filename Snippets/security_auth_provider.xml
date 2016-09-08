@@ -1,0 +1,7 @@
+<security:authentication-provider>
+			<security:jdbc-user-service
+				data-source-ref="dataSource" />
+			<security:password-encoder hash="sha-256" 
+				ref="passwordEncoder">
+			</security:password-encoder>
+</security:authentication-provider>

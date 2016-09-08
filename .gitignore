@@ -1,4 +1,6 @@
 *.aux
+*.DS_Store
+*.textpadtmp
 *.lol
 *.lof
 *.lot
@@ -7,7 +9,6 @@
 *.bat
 *.tdo
 *.tps
-*.xml
 *.backup
 *.toc
 *.bbl
