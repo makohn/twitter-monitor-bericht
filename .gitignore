@@ -1,6 +1,6 @@
 *.aux
-*.DS_Store
-*.textpadtmp
+.DS_Store
+.textpadtmp
 *.lol
 *.lof
 *.lot
