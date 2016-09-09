@@ -7,7 +7,7 @@ Dieser Abschnitt handelt davon, wie Benutzer automatisiert über interessante Tw
 \\\\
 Um dies zu realisieren gibt es die Entitäten „notifications“ und „notificationType“. Hier werden Informationen gespeichert wie Betreff, Inhalt, Empfänger, Benachrichtigungsart und ein Zeitstempel, der angibt, wann die Benachrichtigung versendet wurde. Letztes dient zu gleich auch zur Überprüfung, ob die Benachrichtigung noch zum Versand ansteht.
 \\\\
-Mit einem Datenbank-Event werden täglich um 08:00 Uhr und um 20:00 Uhr die fünf interessantesten Tweets für jeden Benutzer ermittelt und in die Entität „notifications“ eingetragen. Der Inhalt ist im HTML-Format. Dies soll sicherstellen, dass die Tweets in der E-Mail dem Benutzer optisch genauso wie auf der Webseite präsentiert wird.
+Mit einem Datenbank-Event werden täglich um 08:00 Uhr und um 20:00 Uhr die fünf interessantesten Tweets für jeden Benutzer ermittelt und in die Entität „notifications“ eingetragen. Der Inhalt ist im \acs{HTML}-Format. Dies soll sicherstellen, dass die Tweets in der E-Mail dem Benutzer optisch genauso wie auf der Webseite präsentiert wird.
 \\\\
 In der JAVA-Anwendung werden die noch ausstehenden Benachrichtigungen in der Klasse „NotficationDao“ mithilfe der Funktion "getNotificationsNotSent()" ermittelt und als Liste mit Objekten vom Typ "Notification" zurückgegeben.
 \\\\
