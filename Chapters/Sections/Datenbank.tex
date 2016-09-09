@@ -3,6 +3,8 @@
 %=========================================
 \section{Datenbank}
 
+Als Datenbanksystem wird MySQL verwendet. Dies ist eine quelloffenes relationales \ac{DBMS}, welches schnell und verlässig arbeitet. Es bietet eine Menge Funktionalitäten, darunter eine Benutzerverwaltung, Unterstützung von Stored-Procedures/-Functions, Trigger, Events und eine Textindexierung. Letzteres ermöglicht ein schnelleres Mapping von Tweets und Keywords, was aufgrund der großen Datenmenge sehr nützlich ist.
+\\\\
 Der Name der Datenbank lautet \texttt{twitter\_monitor} und wird benutzt um Daten wie Tweets und 
 Benutzerprofile des Projektes Twitter-Monitor zu speichern. Desweiteren hilft sie auch dabei 
 Benachrichtigungen über interessante Tweets für die Nutzer anzulegen, welche dann über den Server 
@@ -10,6 +12,8 @@ per E-Mail versendet werden. Hilfreiche Funktionen zur Berechnung der Tweet-Prio
 von der Datenbank angeboten. 
 
 \subsection{Stored-Procedures und Stored-Functions}
+
+Stored-Procedures und -Functions werden direkt auf dem \acs{DBMS} ausgeführt, bieten eine hohe Performance und ermöglichen auch komplexere Operationen einfach zu implementieren. Zusätzlich wird die Kommunikation mit der Server-Anwendung verringert und damit auch der Netzwerk-Traffic. Sie erhöhen außerdem die Wartbarkeit, weil der Code nur noch zentral an einer Stelle angepasst werden muss.
 
 \begin{table}[!ht]
 \small 
@@ -26,7 +30,7 @@ von der Datenbank angeboten.
     %------------------------------------------------------------------------------------------
      \texttt{user\_exists} (F) & Überprüft, ob es bereits einen Nutzer mit dieser Email-Adresse bereits gibt.  & username: \newline varchar(60) & bool: \newline 1:true/ \newline 0:false \\
     %------------------------------------------------------------------------------------------
- 	 \texttt{get\_tweet\_html} (F) & Hilfsfunktion, die ein Tweet mithilfe von HTML nachbaut wie auf der Webseite & tweet\_text: text, \newline author\_name: \newline varchar (15), \newline author\_picture: \newline varchar(100), tweet\_datum: \newline datetime, \newline tweet\_image: \newline varchar(100) & text: \newline Tweet \newline als HTML \\
+ 	 \texttt{get\_tweet\_html} (F) & Hilfsfunktion, die ein Tweet mithilfe von HTML nachbaut wie auf der Webseite & tweetId: bigint & text: \newline Tweet \newline als HTML \\
     %------------------------------------------------------------------------------------------
  	 \texttt{notify\_users} (P) & Erstellt eine Benachrichtigung zu jedem Nutzer mit den Top-Tweets aus den letzten 12 Stunden, sofern der Nutzer dies aktiviert hat & username: \newline varchar(60) & text: \newline Top-Tweets als HTML \\
     %------------------------------------------------------------------------------------------

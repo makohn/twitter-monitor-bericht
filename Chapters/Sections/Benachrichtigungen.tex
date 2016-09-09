@@ -5,7 +5,7 @@
 
 Dieser Abschnitt handelt davon, wie Benutzer automatisiert über interessante Tweets informiert werden.
 \\\\
-Um dies zu realisieren gibt es die Entitäten „notifications“ und „notificationType“. Hier werden Informationen gespeichert wie Betreff, Inhalt, Empfänger, Benachrichtigungsart und ein Zeitstempel, der angibt, wann die Benachrichtigung versendet wurde. Letztes dient zu gleich auch zur Überprüfung, ob die Benachrichtigung noch zum Versand ansteht.
+Um dies zu realisieren gibt es die Entitäten „notifications“ und „notificationType“. Hier werden Informationen gespeichert wie Betreff, Inhalt, Empfänger, Benachrichtigungsart und ein Zeitstempel, der angibt, wann die Benachrichtigung versendet wurde. Letzteres dient zu gleich auch zur Überprüfung, ob die Benachrichtigung noch zum Versand ansteht.
 \\\\
 Mit einem Datenbank-Event werden täglich um 08:00 Uhr und um 20:00 Uhr die fünf interessantesten Tweets für jeden Benutzer ermittelt und in die Entität „notifications“ eingetragen. Der Inhalt ist im \acs{HTML}-Format. Dies soll sicherstellen, dass die Tweets in der E-Mail dem Benutzer optisch genauso wie auf der Webseite präsentiert wird.
 \\\\
@@ -15,7 +15,7 @@ Nun wird noch eine Methodik benötigt, dass in einem gewissen Zeitintervall, die
 \\\\
 Der Dienst lässt sich über die Methoden start() und stop()-Methode starten und beenden. Wenn der Dienst läuft und eine Benachrichtigung zum Versand ansteht, wird zuerst überprüft, welche Benachrichtigungsart gesetzt ist. Anschließend wird die entsprechende Strategie gestartet und der Benutzer erhält seine Neuigkeiten.
 \\\\
-Sobald eine Benachrichtigung versendet wurde, wird sie entsprechend markiert. Hierzu wird der Zeitstempel mit der aktuellen Uhrzeit zur entsprechenden Notification in der Datenbank gesetzt.
+Sobald eine Benachrichtigung versendet wurde, wird sie entsprechend markiert. Hierzu wird der Zeitstempel mit der aktuellen Uhrzeit zur entsprechenden Benachrichtigung in der Datenbank gesetzt.
 
 \subsection{per E-Mail}
 
