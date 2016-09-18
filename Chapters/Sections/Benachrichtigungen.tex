@@ -23,6 +23,8 @@ Im Folgenden wird die Funktionsweise der Benachrichtigungen über E-Mail erläut
 \\\\
 Jeder Benutzer hat eine E-Mail-Adresse hinterlegt. Diese wird als Empfänger-Adresse genutzt, wenn Benachrichtigungen mit der entsprechenden Benachrichtigungsart zum Versand anstehen.
 \\\\
-Um den Versand per E-Mail zu realisieren wurde eine Google-Mail-Adresse angelegt und die Klasse "MailSender" implementiert. Diese meldet sich zuerst bei Google mit Benutzername und Passwort an und versendet dann die E-Mail mithilfe des Protokolls SMTP.
+Um den Versand per E-Mail zu realisieren wurde eine Google-Mail-Adresse angelegt und die Klasse "MailSender" implementiert. Diese meldet sich zuerst bei Google mit Benutzername und Passwort an und versendet dann die E-Mail.
 \\\\
-\todo[inline]{TODO: Warum per Google-Mail ?}
+In Java können Mails am einfachsten über das SMTP Protokoll versendet werden. Weltweit gibt es viele Mail-Dienste, die Mail mittels des SMTP Protokolls versenden. Einer der bekanntesten ist der Mail-Service "GMail" vom Internetkonzern Google. 
+\\
+Mit rund einer Milliarde Nutzer, ist GMail der meist genutzte E-Mail Dienst weltweit. Da bei dieser Anzahl von Nutzern, sowohl die Zuverlässigkeit des E-Mail Transport, als auch die Sicherheit der E-Mail Übertragung gewährleistet sein muss, ist unsere Wahl auf diesen Service gefallen.
