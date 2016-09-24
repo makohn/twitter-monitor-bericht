@@ -97,56 +97,150 @@ Es wurden zwei Benutzer für die Benutzung der TwitterMonitor-Datenbank angelegt
  
 \subsection{Entitäten}
  
+ Im Folgenden werden die Entitäten mit entsprechenden Informationen wie \ac{PK}, \ac{FK} und \ac{NN} aufgelistet.
 \begin{table}[!ht]
-\caption{tweets: Speicherung der Tweet-Informationen aus Twitter. }
-  \begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
+	\caption{tweets: Speicherung der Tweet-Informationen aus Twitter. }
+	\begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
     \toprule 
     \textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
     \hline 
-    \texttt{tweetId} & Eindeutige ID, die von Twitter übernommen wird & \texttt{bigint} & ja && ja   \\
-    \texttt{autorId} &  & \texttt{bigint} & & ja & ja   \\
-    \texttt{text} & Inhalt des Tweets  & \texttt{varchar(160)} & & & ja   \\
-    \texttt{favoriteCount} & Anzahl der „Favourites“  & \texttt{int} & & & ja   \\
-    \texttt{retweetCount} & Anzahl der „Retweets“ & \texttt{int} & & & ja   \\
+    \texttt{tweetId} & Eindeutige ID, die von Twitter übernommen wird & \texttt{bigint} & X & & X   \\
+    \texttt{autorId} &  & \texttt{bigint} & & X & X   \\
+    \texttt{text} & Inhalt des Tweets  & \texttt{varchar(160)} & & & X   \\
+    \texttt{favoriteCount} & Anzahl der „Favourites“  & \texttt{int} & & & X   \\
+    \texttt{retweetCount} & Anzahl der „Retweets“ & \texttt{int} & & & X   \\
     \texttt{image} & Url zu einem anhängenden Bild & \texttt{varchar(100)} & & &   \\
     \texttt{place} & Ort des Tweets & \texttt{varchar(60)} & & &   \\
-    \texttt{createdAt} & Zeitpunkt, wann der Tweet auf Twitter veröffentlicht wurde & \texttt{datetime} & & & ja   \\
-    \texttt{lastUpdate} & Zeitpunkt, wann der Eintrag in die Datenbank erfolgt ist & \texttt{datetime} & & &   \\
+    \texttt{createdAt} & Zeitpunkt, wann der Tweet auf Twitter veröffentlicht wurde & \texttt{datetime} & & & X   \\
+    \texttt{language} & Sprache des Tweets & \texttt{varchar(5)} & & &   \\
 	\bottomrule
   \end{tabular}
 \end{table}
 
 \begin{table}[!ht]
-\caption{tweetAuthors: Informationen zu dem Benutzer, der den Tweet veröffentlicht hat. }
-  \begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
+	\caption{tweetAuthors: Informationen zu dem Benutzer, der den Tweet veröffentlicht hat. }
+    \begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
     \toprule 
     \textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
     \hline 
-    \texttt{autorId} & Eindeutige ID, die von Twitter übernommen wird & \texttt{bigint} & ja && ja   \\
-    \texttt{name} & Benutzername von Twitter, wird mit „@“ angesprochen & \texttt{varchar(15)} & & & ja   \\
+    \texttt{autorId} & Eindeutige ID, die von Twitter übernommen wird & \texttt{bigint} & X && X   \\
+    \texttt{name} & Benutzername von Twitter, wird mit „@“ angesprochen & \texttt{varchar(15)} & & & X   \\
     \texttt{screenName} & Name, wie er bei Twitter angezeigt wird  & \texttt{varchar(20)} & & &   \\
     \texttt{followerCount } & Anzahl der Benutzer, die diesem Benutzer folgen   & \texttt{int} & & &   \\
     \texttt{pictureUrl} & Url zum Profilbild & \texttt{varchar(100)} & & &   \\
-    	\bottomrule
+   	\bottomrule
   \end{tabular}
 \end{table}
       
-%\begin{table}[!ht]
-%\caption{users: Stellt unsere Interessenprofile da. Notwendig für die Benutzerverwaltung.}
-%  \begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
-%    \toprule 
-%    \textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
-%    \hline 
-%    \texttt{username} & varchar(60) & \texttt{bigint} & ja && ja   \\
-%    \texttt{email} &  E-Mail Adresse  & \texttt{varchar(60)} & & & ja   \\
-%    \texttt{password} &  Verschlüsselter Password-String & \texttt{varchar(80)} & & & ja  \\
-%    \texttt{enabled} & Gibt an ob das Nutzerkonto aktiv ist oder nicht   & \texttt{tinyint} & & & ja \\
-%    \texttt{registeredAt} & Zeitpunkt, wann das Interessensprofil angelegt wurde & \texttt{datetime)} & & &   \\
-%    	\bottomrule
-%  \end{tabular}
-%\end{table}
+\begin{table}[!ht]
+	\caption{users: Stellt unsere Interessenprofile da. Notwendig für die Benutzerverwaltung.}
+    \begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
+    \toprule 
+    \textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
+    \hline 
+    \texttt{username} & Eindeutiger Benutzername & \texttt{varchar(60)} & X && X   \\
+    \texttt{email} &  E-Mail Adresse  & \texttt{varchar(60)} & & & X   \\
+    \texttt{password} &  Verschlüsselter Password-String & \texttt{varchar(80)} & & & X  \\
+    \texttt{enabled} & Gibt an ob das Nutzerkonto aktiv ist oder nicht   & \texttt{tinyint} & & & X \\
+    \texttt{registeredAt} & Zeitpunkt, wann das Interessenprofil angelegt wurde & \texttt{datetime)} & & &   \\
+   	\bottomrule
+  \end{tabular}
+\end{table}
 
-\todo[inline]{TODO: weitere Entitäten ergänzen. Wirklich an dieser Stelle ? Besser als Anhang ?}
+\begin{table}[!ht]
+	\caption{authorities: Stellt unsere Interessenprofile da. Notwendig für die Benutzerverwaltung.}
+	\begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
+	\toprule 
+	\textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
+	\hline 
+	\texttt{username} & \texttt{varchar(60)} & X & X & X   \\
+	\texttt{authority} &  & \texttt{varchar(60)} & & & X   \\
+	\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+	\caption{keywords: Schlagwörter, welche vom Benutzer festgelegt werden. Stellen die Interessen des Benutzers dar.}
+	\begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
+		\toprule 
+		\textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
+		\hline 
+		\texttt{keyword} &  Schlagwort  & \texttt{varchar(50)} & X & & X   \\
+		\texttt{username} & Benutzername & \texttt{varchar(60)} & X & X & X   \\
+		\texttt{active} &  Gibt an, ob Tweets zu diesem Tweet dem Benutzer angezeigt werden sollen & \texttt{int} & & & X   \\
+		\texttt{priority} &  Priorisierung von 1 (niedrigste) bis 5 (höchste) & \texttt{int)} & & & X  \\
+		\texttt{positive} & Gibt an, ob das Keyword auf der Whitelist (1) oder Blacklist (0) steht & \texttt{int} & & & X \\
+		\texttt{registeredAt} & Zeitpunkt, wann das Keyword angelegt wurde & \texttt{datetime)} & & &   \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+	\caption{tweets\char`_x\char`_keywords: Kreuztabelle zwischen benutzer und keywords. Hier steht drin, welche Tweets zu welchen Keywords passen.}
+	\begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
+		\toprule 
+		\textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
+		\hline 
+		\texttt{tweetId} &  Eindeutige ID eines Tweets  & \texttt{bigint} & X & X & X   \\
+		\texttt{keyword} & Schlagwort & \texttt{varchar(50)} & X & X & X   \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+	\caption{preferences: Liste von Einstellungen, die der Benutzer zur Verfügung hat}
+	\begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
+		\toprule 
+		\textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
+		\hline 
+		\texttt{preferenceType} & Eindeutiges Kürzel mit dem Typ der Einstellung  & \texttt{char(3)} & X & & X   \\
+		\texttt{descr} & Beschreibung der Einstellung & \texttt{varchar(60)} &  & X   \\
+		\texttt{defaultValue} &  Standardwert zu einer Einstellung & \texttt{int} & & & X   \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+	\caption{user\char`_x\char`_preferences: Kreuztabelle zwischen Benutzer und Einstellungen. Hier erfolgt ein Eintrag, wenn der Eintrag vom Standardwert abweicht.}
+	\begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
+		\toprule 
+		\textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
+		\hline 
+		\texttt{username} & Benutzername & \texttt{varchar(60)} & X & X & X   \\
+		\texttt{preferenceType} & Kürzel mit dem Typ der Einstellung & \texttt{varchar(60)} & X & X & X  \\
+		\texttt{value} &  Benutzerspezifischer Wert zu einer Einstellung & \texttt{int} & & &   \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+	\caption{notificationType: Liste von Benachrichtigungsarten, die vom System unterstützt werden (z.B. E-Mail)}
+	\begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
+		\toprule 
+		\textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
+		\hline 
+		\texttt{type} & Eindeutiges Kürzel mit der Benachrichtigungsart & \texttt{char(3)} & X & & X   \\
+		\texttt{descr} & Beschreibung zur Benachrichtigungsart & \texttt{varchar(60)} & & & X  \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+	\caption{notifications: Jeder Eintrag stellt eine Benachrichtigung für einen Nutzer dar}
+	\begin{tabular}{p{3cm}p{5cm}p{2cm}p{1cm}p{1cm}p{1cm}}
+		\toprule 
+		\textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
+		\hline 
+		\texttt{notificationId} & Fortlaufende eindeutige Benachrichtigungs-ID & \texttt{int} & X & & X   \\
+		\texttt{username} & Benutzername & \texttt{varchar(60)} & & X & X  \\
+		\texttt{type} & Kürzel mit der Benachrichtigungsart & \texttt{char(3)} & & X & X  \\
+		\texttt{subject} & Betreff & \texttt{varchar(60)} & & & X  \\
+		\texttt{body} & Inhalt der Nachricht & \texttt{text} & & & X  \\
+		\texttt{createdAt} & Zeitpunkt, an dem die Benachrichtigung erstellt wurde & \texttt{datetime} & & &  \\
+		\texttt{sentAt} & Zeitpunkt, an dem die Benachrichtigung versendet wurde & \texttt{datetime)} & & & \\
+		\bottomrule
+	\end{tabular}
+\end{table}
 
 
 
