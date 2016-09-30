@@ -17,7 +17,7 @@ ihrer Bewältigung mit ihren jeweiligen
 Problemen vorgestellt werden.
 
 \subsection{Controller und Services}
-\subsubsection*{Controller}
+%\subsubsection*{Controller}
 In einer Spring-Web-Anwendung werden die ankommenden HTTP-Anfragen von den entsprechenden 
 Controller-Methoden, die als RequestHandler annotiert sind, verarbeitet. Die Aufgabe eines 
 Controllers beschränkt sich dabei darauf eine Darstellungsform, etwa in Form einer JSP-Datei, 
@@ -30,8 +30,8 @@ erhalten sie in der Regel lediglich den Benutzernamen der aktuellen Session.\foo
 \autoref{subsec:spring_security}: Spring Security Module} Dieser kann von einem jederzeit 
 verfügbaren Principal-Objekt angefordert werden \footnote{Die JSONs und das Principal-Objekt werden 
 als Parameter des RequestHandlers angegeben und sind dann in dessen Kontext verfügbar}.
-
-\subsubsection*{Services}
+\\\\
+%\subsubsection*{Services}
 Die Services einer Spring-Anwendung im engeren Sinne sind im Wesentlichen Fassaden, die die von den 
 Controllern benötigten und von den anderen Services im weiteren Sinne des Wortes bereitgestellte 
 Funktionalitäten zur Bearbeitung und Abfrage von Daten in einem übersichtlichen Interface bündeln. 
@@ -41,7 +41,8 @@ es sich bei beiden Klassen lediglich um Wrapper, die Anfragen der Controller an 
 weiterreichen. Obwohl dieser Zwischenschritt über die Services somit im Grunde genommen überflüssig 
 ist, wird er trotzdem genommen, um die Erweiterbarkeit der Anwendung sicherzustellen. Zusätzliche 
 Bearbeitung von angefragten Daten durch das Backend könnte jederzeit eingefügt werden ohne die DAO-
-Klassen verändern zu müssen.
+Klassen verändern zu müssen.Ein Beispiel einer solchen Erweiterung ist die Filterung von Tweets in \texttt{TweetService}. 
+Tweets, die die übergebenen Begriffe nicht enthalten, werden aus dem Ergebnis entfernt.
 \newpage
 Die Aufgaben der Controller und Services im engeren Sinne werden vom \textit{Spring Framework} 
 bereits stark festgelegt. Da in der Interaktion mit dem Frontend keine besonderen Bearbeitungen der 
@@ -49,118 +50,74 @@ Daten durchgeführt werden, sind bei der Implementierung keine Schwierigkeiten a
 
 \subsection{Stream}
 Das Kernstück der Anwendung ist die Verbindung zu Twitter, über die sie mit neuen Tweets versorgt wird. 
-Für den Stream selbst sind in der Anwendung die Komponenten StreamService, TweetListener und 
-StatusService verantwortlich. Der StreamService stellt die eigentliche Verbindung zu Twitter her. Der 
-TweetListener hört diese Verbindung ab und gibt empfangene Tweets an den StatusService zur Bearbeitung 
+Für den Stream selbst sind in der Anwendung die Komponenten \texttt{StreamService}, \texttt{TweetListener} und 
+\texttt{StatusService} verantwortlich. Der \texttt{StreamService} stellt die eigentliche Verbindung zu Twitter her. Der 
+\texttt{TweetListener} hört diese Verbindung ab und gibt empfangene Tweets an den \texttt{StatusService} zur Bearbeitung 
 und Speicherung in der Datenbank weiter.
 
 \subsubsection*{Twitter4J}
-Zum Aufbau der Verbindung zu Twitter wird die Twitter4J-API verwendet, die auch das zugrundeliegende 
+Zum Aufbau der Verbindung zu Twitter wird die \textit{Twitter4J} API verwendet, die auch das zugrundeliegende 
 Beobachtermuster festlegt. Dabei handelt es sich um eine einfache Programmierschnittstelle, die den 
 größten Teil der Funktionalität der Twitter REST und Streaming APIs in Form von Java-Klassen zur 
-Verfügung stellt. Neben den normalen Twitter Funktionen bietet die Twitter4j die Möglichkeit,
-Anfragen an Twitter zu stellen. Damit kann man Informationen zu Tweets (Name des Autors,
-Anzahl der Likes/Retweets, etc.) oder Autoren erhalten.
+Verfügung stellt. Twitter nennt selbst zahlreiche alternative Bibliotheken in den unterschiedlichsten 
+Programmiersprachen.\footnote{https://dev.twitter.com/overview/api/twitter-libraries} Neben Twitter4J wird hier als einzige weitere Java-basierte Bibliothek die Twitter-eigene 
+\textit{Hosebird} Client-Bibliothek \textit{hbc} angeführt. Eine weitere Recherche führte außerdem zu den weiteren Alternativen 
+\textit{twitter-java} und \textit{JTwitter}. Die letzteren beiden Möglichkeit stellten sich jedoch beide schnell als veraltet und 
+nicht mehr aktuell heraus. Auch Twitter4J ist bereits etwas älter, aber offensichtlich noch auf einem relativ 
+aktuellen Stand. Außerdem erfreut es sich einer gewissen Beliebtheit, so dass mit genügend Support gerechnet 
+werden kann. Aber vor allem wird nur eine kurze Einarbeitungszeit benötigt. Die wesentlichen Funktionalitäten 
+stehen schnell und einfach zur Verfügung. Twitters \textit{hbc} wäre eine mögliche Alternative gewesen, doch 
+die Entscheidung fiel auf Twitter4J.
 
 \subsubsection*{StreamService}
-In der Anwendung wird der Stream in \textit{StreamService} implementiert. Seine Aufgabe ist es 
+In der Anwendung wird der Stream in \texttt{StreamService} implementiert. Seine Aufgabe ist es 
 sicherzustellen, dass zu jeder Zeit ein Stream existiert, der auf die aktuellen Keywords aller 
-Benutzer ausgerichtet ist. Zu Beginn der Laufzeit wird \textit{StreamService} als Komponente 
+Benutzer ausgerichtet ist. Zu Beginn der Laufzeit wird \texttt{StreamService} als Komponente 
 instantiiert. Im Konstruktor wird dabei der erste Stream erstellt und initialisiert. Die Konfiguration 
 bei der Erstellung betrifft vor allem die \textit{OAuth}-Authentifizierung, die die Anwendung 
 gegenüber Twitter identifiziert \footnote{Oauth weiter ausführen oder auf Kap 1 verweisen (Twitter API 
 Beschreibung)}. Außerdem muss dem Stream ein Listener gegeben werden, der vor allem ankommende 
-\textit{Status}-Objekte weiterleitet. Für die eigentliche Initialisierung des Streams wird ihm 
-schließlich ein Array von Schlüsselwörtern übergeben. Die Schlüsselwörter lädt der 
-\textit{StreamService} direkt mit einer entsprechenden Methode des \textit{KeywordDao}. Von nun an 
-empfängt der Listener alle Tweets, die den Keywords entsprechen. \footnote{Vgl. Beschreibung der 
-Funktionalität von Keywords in Kapitel 3 [muss noch geschrieben werden, aber da gehört es hin]}
+\texttt{Status}-Objekte weiterleitet. Für die eigentliche Initialisierung des Streams wird ihm schließlich ein 
+\texttt{Filter} übergeben, der die notwendigen Suchparameter enthält. Hier sind das die Schlüsselwörter und die 
+gewünschten Sprachen. Die Schlüsselwörter lädt der \texttt{StreamService} direkt mit einer entsprechenden 
+Methode des \texttt{KeywordDao}. Von nun an empfängt der Listener alle Tweets, die den Keywords entsprechen. 
+% Referenz au Kapitel 3
 \\\\
 Obwohl der Aufbau der Verbindung selbst keine Probleme bereitet, gibt es jedoch gewisse Schwierigkeiten 
 bei der Verwaltung der Verbindung über längere Zeit.
-\begin{description}
-	\item [Aktualisierung der Keyword-Liste:] Insbesondere die Aktualisierung der Keyword-Liste eines laufenden Streams stellt ein Problem dar. Wenn ein Benutzer ein neues Schlüsselwort zu seiner Liste hinzufügt, das noch nicht von einem anderen Nutzer gesucht wird, sollte die Keyword-Liste des Streams möglichst zeitnah erweitert werden. Das Gleiche gilt bei einem bestehendes Keyword, für das sich kein Benutzer mehr interessiert, und somit nur unnötig die Bandbreite der Verbindung blockiert. Da es nicht möglich ist die Keyword-Liste eines laufenden Streams zu verändern,\footnote{Die naheliegende Lösung} muss der Stream dazu neu gestartet werden. %TODO footnote ergänzen
-		Der erste Lösungsansatz ist dementsprechend ein einfacher, regelmäßiger Neustart des 
-		Streams gewesen. Zu viele Neustarts in zu kurzer Zeit durch die gleiche Anwendung werden 
-		von Twitter jedoch mit einer Blockierung für eine bestimmte Zeit geahndet. Zudem besteht 
-		bei der großen Geschwindigkeit, mit der Tweets durch den Stream eintreffen, eine hohe 
-		Wahrscheinlichkeit, dass während eines Neustarts einige Tweets verpasst werden. Bei einem 
-		zu geringen Zeitintervall für den Neustart können so leichter Tweets verloren gehen und es 
-		besteht außerdem die Gefahr einer Blockierung durch Twitter. Wird das Zeitintervall 
-		hingegen zu hoch gesetzt, so werden die neuen Keywords der Benutzer nicht schnell genug 
-		auf den Stream angewendet. Auch dadurch gehen somit Tweets, die diesen Keywords 
-		entsprechen und in der Zwischenzeit entstehen, verloren.
-		Die Lösung dieses Dilemmas liegt darin, den Neustart nur dann durchzuführen, wenn auch 
-		wirklich neue Keywords vorliegen. In einem ersten Ansatz wurde eine expliziter 
-		Methodenaufruf durch die entsprechenden Methoden des UserService, die für Änderungen an 
-		den Keywords verantwortlich sind, zu machen. Diese Lösung ist jedoch nicht praktikabel, da 
-		bereits das mehrfache Hinzufügen von Keywords durch einen einzelnen Benutzer auch 
-		mehrfache Neustarts bedeuten würden. Die Verknüpfung des Neustarts mit der Erstellung und 
-		dem Löschen von Keywords bedeutet einen Kontrollverlust.
-		Stattdessen wird nun in regelmäßigen Abständen überprüft, ob ein Neustart aufgrund einer 
-		veränderten Liste notwendig ist. Dazu wird der Scheduler verwendet, der von Spring-Core 
-		bereitgestellt wird. Damit lässt sich eine bestimmte Methode in Intervallen oder zu 
-		bestimmten Zeitpunkten aufrufen.\footnote{Die Methode muss lediglich mit einer 
-		entsprechenden Annotation gekennzeichnet werden.} Da das Hinzufügen und Entfernen von 
-		Keywords durch einen Benutzer eher zu den Ausnahmefällen gehört, lohnt sich die Prüfung, ob
-		die Liste sich geändert hat. Die Prüfung kann ruhig öfter stattfinden, da ein Neustart nur 
-		selten erforderlich sein wird. Die Kosten der Prüfung selbst betragen vor allem eine Anfrage 
-		an die Datenbank. Diese liefert den eigentlichen Maßstab für die Wahl des Zeitintervalls. In 
-		der Anwendung werden die Keywords einmal in der Minute geprüft.
-	\item [Unerwartete Abbrüche:] Weitere Probleme im Zusammenhang mit der Aufrechterhaltung des Streams sind Ausnahmesituationen, in denen der Stream etwa nicht korrekt startet oder unerwartet beendet wird. Auch diese Möglichkeiten würden durch den regelmäßigen Neustart des Streams abgedeckt werden. Da dieser jedoch nicht garantiert werden kann, wird auch ein unbedingter Neustart in einem größeren Zeitintervall von einem Tag durchgeführt. So wird sichergestellt, dass der Stream auch ohne Beobachtung über einen längeren Zeitraum erhalten bleibt.
-\end{description}
+\subsubsection*{Aktualisierung der Keyword-Liste}
+Insbesondere die Aktualisierung der Keyword-Liste eines laufenden Streams stellt ein Problem dar. Wenn ein Benutzer ein neues Schlüsselwort zu seiner Liste hinzufügt, das noch nicht von einem anderen Nutzer gesucht wird, soll die Keyword-Liste des Streams möglichst zeitnah erweitert werden. Das Gleiche gilt bei einem bestehenden Keyword, für das sich kein Benutzer mehr interessiert, und somit nur unnötig die Bandbreite der Verbindung blockiert. Da es nicht möglich ist die Keyword-Liste eines laufenden Streams zu verändern, muss der Stream dazu neu gestartet werden. Der erste Lösungsansatz ist dementsprechend ein einfacher, regelmäßiger Neustart des Streams gewesen. Zu viele Neustarts in zu kurzer Zeit durch die gleiche Anwendung werden von Twitter jedoch mit einer Blockierung für eine bestimmte Zeit geahndet. Zudem besteht bei der großen Geschwindigkeit, mit der Tweets durch den Stream eintreffen, eine hohe Wahrscheinlichkeit, dass während eines Neustarts einige Tweets verpasst werden. Bei einem zu geringen Zeitintervall für den Neustart können so leichter Tweets verloren gehen und es besteht außerdem die Gefahr einer Blockierung durch Twitter. Wird das Zeitintervall hingegen zu hoch gesetzt, so werden die neuen Keywords der Benutzer nicht schnell genug auf den Stream angewendet. Auch dadurch gehen somit Tweets, die diesen Keywords entsprechen und in der Zwischenzeit entstehen, verloren. \\
+Ein erster Schritt zur Lösung dieses Dilemmas liegt darin, den Neustart nur dann durchzuführen, wenn auch wirklich neue Keywords vorliegen. In einem weiteren Ansatz wurde ein expliziter Methodenaufruf durch die entsprechenden Methoden des \texttt{KeywordService}, die für Änderungen an den Keywords verantwortlich sind, durchgeführt. Diese Lösung ist jedoch nicht praktikabel, da bereits das mehrfache Hinzufügen von Keywords durch einen einzelnen Benutzer auch mehrfache Neustarts bedeuten und schnell eine Blockierung durch Twitter nach sich ziehen würde. Die Verknüpfung des Neustarts mit der Erstellung und dem Löschen von Keywords bedeutet also einen Kontrollverlust. \\
+Stattdessen wird nun in regelmäßigen Abständen überprüft, ob ein Neustart aufgrund einer veränderten Liste notwendig ist. Dazu wird der \texttt{Scheduler} verwendet, der von \textit{Spring-Core} bereitgestellt wird. Damit lässt sich eine bestimmte Methode in Intervallen oder zu bestimmten Zeitpunkten aufrufen.\footnote{Die Methode muss lediglich mit einer entsprechenden Annotation gekennzeichnet werden.} Da das Hinzufügen und Entfernen von Keywords durch einen Benutzer eher zu den Ausnahmefällen gehört, lohnt sich die Prüfung, ob die Liste sich geändert hat. Die Prüfung kann ruhig öfter stattfinden, da ein Neustart nur selten erforderlich sein wird. Die Kosten der Prüfung selbst betragen vor allem eine Anfrage an die Datenbank. Diese liefert den eigentlichen Maßstab für die Wahl des Zeitintervalls. In der Anwendung werden die Keywords einmal in der Minute geprüft.
+%
+\subsubsection*{Unerwartete Abbrüche}
+Weitere Probleme im Zusammenhang mit der Aufrechterhaltung des Streams sind Ausnahmesituationen, in denen der Stream etwa nicht korrekt startet oder unerwartet beendet wird. Auch diese Möglichkeiten würden durch den regelmäßigen Neustart des Streams abgedeckt werden. Da dieser jedoch in der oben beschriebenen Lösung nicht mehr garantiert werden kann, wird auch ein unbedingter Neustart in einem größeren Zeitintervall von einem Tag durchgeführt. So wird sichergestellt, dass der Stream auch ohne Beobachtung über einen längeren Zeitraum erhalten bleibt.
+%
 \subsubsection*{TweetListener}
-Der \textit{TweetListener} implementiert das \textit{StatusListener-Interface} der Twitter4J-API. Er 
+Der \texttt{TweetListener} implementiert das \texttt{StatusListener-Interface} der Twitter4J-API. Er 
 wird dem Stream des StreamService als Beobachter hinzugefügt. Jeder Tweet aus dem Stream führt zu 
-einem Aufruf der Methode onStatus(), die dabei ein Status-Objekt erhält, das direkt weiter an den 
-StatusService gereicht wird. Jegliche Bearbeitung wird dort durchgeführt. \\\\
-Die weiteren Methoden des TweetListeners reagieren auf Meldungen, die den Zustand des Streams 
+einem Aufruf der Methode \texttt{onStatus()}, die dabei ein \texttt{Status}-Objekt erhält, das direkt weiter an den 
+\texttt{StatusService} gereicht wird. Jegliche Bearbeitung wird dort durchgeführt. \\\\
+Die weiteren Methoden des \texttt{TweetListener} reagieren auf Meldungen, die den Zustand des Streams 
 betreffen. Auf dem aktuellen Stand des Projekts werden sie nicht verwendet. Sie könnten jedoch 
-eingesetzt werden, um flexibler auf unerwartete Probleme, etwa mit einem Neustart des Streams,  zu 
-reagieren. \newpage 
-\begin{description}
-	\item [Eventuelle Probleme mit der Synchronisierung:] Während des Projekts kam die Vermutung auf, dass der Aufruf der onStatus()-Methode asynchron verläuft. Das hätte geheißen, dass jeder Tweet zur Erstellung eines neuen Threads führt. Entsprechend hätte die Möglichkeit bestanden, dass mehrere Threads zur gleichen Zeit einen Status an StatusService übergeben. Dies hätte zu Ressourcenkonflikten führen können. Die Annahme hat sich jedoch mittlerweile als unbegründet herausgestellt. Die einzigen asynchronen Nachrichten in der Anwendung werden durch Scheduler-Aufrufe gesendet.
-\end{description}
+eingesetzt werden, um flexibler auf unerwartete Probleme, etwa mit einem Neustart des Streams, zu 
+reagieren. \\
+Während des Projekts kam die Vermutung auf, dass der Aufruf der \texttt{onStatus()}-Methode asynchron verläuft. Das hätte geheißen, dass jeder Tweet zur Erstellung eines neuen \textit{Worker}-Threads führt. Entsprechend hätte die Möglichkeit bestanden, dass mehrere Threads zur gleichen Zeit einen \texttt{Status} an \texttt{StatusService} übergeben. Dies hätte zu Ressourcenkonflikten führen können. Die Annahme hat sich jedoch mittlerweile als unbegründet herausgestellt. Die einzigen asynchronen Nachrichten in der Anwendung werden durch \texttt{Scheduler}-Aufrufe gesendet.
+%
 \subsubsection*{StatusService}
-Die Aufgabe des \textit{StatusService} ist die Erstellung von Instanzen der internen Datenmodelle für 
-Tweets und Autoren aus den \textit{Status}-Objekten, die er vom \textit{TweetListener} erhält. Diese 
-werden dann mit Hilfe der entsprechenden DAOs in die Datenbank übertragen. Der \textit{StatusStream} 
-ist dabei zunächst dafür verantwortlich, dass im Falle eines Retweets der ursprüngliche Tweet aus dem 
-\textit{Status}-Objekt bearbeitet wird. Um die Anzahl der erfassten Tweets zu verringern, werden 
-außerdem keine Retweets von älteren Nachrichten gespeichert.
-Hinsichtlich seiner Aufgabe ähnelt der \textit{StatusService} stark den Services im engeren Sinne mit
-der Unterschied, dass diese die Controller, also das Frontend, mit den DAOs verbinden. Aufgrund der 
-erfahrungsgemäß zu erwartenden Geschwindigkeit von eintreffenden Tweets würde eine einfache Übergabe 
-der Tweets und Autoren an das entsprechende DAO nach der Erstellung eine entsprechend hohe Anzahl von 
-Datenbankverbindungen bedeuten. Um diese zu reduzieren, werden Tweets und Autoren zunächst in einer 
-HashMap zwischengespeichert und in einem Batch-Update gespeichert. Besonders aktive Autoren mit 
-vielen Tweets in kurzer Zeit und häufige Retweets eines bestimmten Tweets werden dabei auch nur 
-einmal übertragen. Dies bedeutet eine kleine Performance-Verbesserung.
+Die Aufgabe des \texttt{StatusService} ist die Erstellung von Instanzen der internen Datenmodelle für Tweets und Autoren aus den \texttt{Status}-Objekten, die er vom \texttt{TweetListener} erhält. Diese werden dann mit Hilfe der entsprechenden DAOs in die Datenbank übertragen. \\
+Der \texttt{StatusStream} ist dabei zunächst dafür verantwortlich, dass im Falle eines Retweets der ursprüngliche Tweet aus dem \texttt{Status}-Objekt bearbeitet wird. Um die Anzahl der erfassten Tweets zu verringern, werden außerdem keine Retweets von älteren Nachrichten gespeichert. Tweets, die älter als zwei Tage sind, werden ebenfalls aussortiert. Dies betrifft insbesondere die Retweets. \\
+Hinsichtlich seiner Aufgabe ähnelt der \texttt{StatusService} stark den Services im engeren Sinne mit der Unterschied, dass diese die Controller, also das Frontend, mit den DAOs verbinden. Aufgrund der erfahrungsgemäß zu erwartenden Geschwindigkeit von eintreffenden Tweets würde eine einfache Übergabe der Tweets und Autoren an das entsprechende DAO nach der Erstellung eine entsprechend hohe Anzahl von Datenbankverbindungen in kurzer Zeit bedeuten. Um diese zu reduzieren, werden Tweets und Autoren zunächst in einer HashMap zwischengespeichert, die regelmäßig mit einem Batch-Update in die Datenbank geladen werden. Besonders aktive Autoren mit vielen Tweets in kurzer Zeit und häufige Retweets eines bestimmten Tweets werden dabei auch nur einmal übertragen. Dies bedeutet somit auch eine kleine Performance-Verbesserung.
 \\\\
-Obwohl mit einer sequentiellen Ankunft der Tweets gerechnet werden kann, ist die Klasse letztlich als 
-Monitor implementiert. Dies liegt daran, dass auch hier der \textit{Scheduler} eingesetzt wird, um in 
-regelmäßigen, kurzen Abständen eine Methode aufzurufen, die die Tweets und Autoren aus den Buffern in 
-die Datenbank lädt. Da diese Methode somit asynchron in einem eigenen Thread aufgerufen wird, kann es 
-zu einem Resourcenkonflikt beim Aufruf kommen. Indem die beiden Methoden des StatusService als 
-„synchronized“ definiert werden, wird die gleichzeitige Ausführung beider Methoden und somit der 
-gleichzeitige Schreib- und Lesezugriff auf die Buffer verhindert. Ohne den \textit{Scheduler} könnte 
-auch eine nicht-synchronisierte Implementierung verwendet werden, bei der die Buffer immer ab einer 
-gewissen maximalen Größe geleert werden. Diese sequentielle und somit einfachere Lösung hätte jedoch 
-den Nachteil, dass nicht absehbar ist, wie schnell ein gesetztes Limit erreicht wird.\footnote{Bei
-der großen Menge an Tweets, die in einem realistischen Szenario vorliegt, ist dieser Punkt 
-selbstverständlich releativ.} Es werden zwar Tweets erfasst, aber solange das Limit nicht erreicht 
-ist, werden sie nicht in die Datenbank übertragen und sind auch nicht vom Benutzer einsehbar. Auch
-hier lässt sich durch den \textit{Scheduler} die 
-Kontrolle über die Ereignisse behalten. Die Anzahl der Datenbankzugriffe in einem bestimmten Zeitraum 
-durch den \textit{StatusService} kann so genau festgelegt werden.
-
+Obwohl mit einer sequentiellen Ankunft der Tweets gerechnet werden kann, ist die Klasse letztlich als Monitor implementiert. Dies liegt daran, dass auch hier der \texttt{Scheduler} eingesetzt wird, um in regelmäßigen, kurzen Abständen eine Methode aufzurufen, die die Tweets und Autoren aus den Buffern in die Datenbank lädt. Da diese Methode somit asynchron in einem eigenen Thread aufgerufen wird, kann es zu einem Resourcenkonflikt beim Aufruf kommen. Indem die beiden Methoden des \texttt{StatusService} als \texttt{synchronized} definiert werden, wird die gleichzeitige Ausführung beider Methoden und somit der gleichzeitige Schreib- und Lesezugriff auf die Buffer verhindert. Ohne den \texttt{Scheduler} könnte auch eine nicht-synchronisierte Implementierung verwendet werden, bei der die Buffer immer ab einer gewissen maximalen Größe geleert werden. Diese sequentielle und somit einfachere Lösung hätte jedoch den Nachteil, dass nicht absehbar ist, wie schnell ein gesetztes Limit erreicht wird.\footnote{Bei der großen Menge an Tweets, die in einem realistischen Szenario vorliegt, ist dieser Punkt selbstverständlich releativ.} Es werden zwar Tweets erfasst, aber solange das Limit nicht erreicht ist, werden sie nicht in die Datenbank übertragen und sind auch nicht vom Benutzer einsehbar. Auch hier lässt sich durch den \texttt{Scheduler} die Kontrolle über die Ereignisse behalten. Die Anzahl der Datenbankzugriffe in einem bestimmten Zeitraum durch den \texttt{StatusService} kann so genau festgelegt werden.
+%
 \subsection{Data Access Objects} 
 \subsubsection*{Datenquelle mit Pooling}
 Die MySQL-Datenbank der Anwendung wird in der web.xml-Datei des Spring Frameworks als eine 
-Datenquelle, ein Datasource-Objekt, konfiguriert, das damit für die Erstellung der DAOs als 
-Komponente ApplicationContext verfügbar ist. Spring übernimmt dabei die Verwaltung der 
+Datenquelle, ein \texttt{Datasource}-Objekt, konfiguriert, das damit für die Erstellung der DAOs als 
+Komponente \texttt{ApplicationContext} verfügbar ist. \textit{Spring} übernimmt dabei die Verwaltung der 
 Datenbankverbindungen in einem Verbindungspool.
-
+%
 \subsubsection*{Anfragen mit DAOs}
 Jedes DAO entspricht einer Klasse des Datenmodells. Ihre Aufgabe ist das Speichern, Laden und 
 Bearbeiten der Daten von Objekten des jeweiligen Datentyps in der Datenbank. Spring bietet zur 

@@ -4,7 +4,7 @@
 \section{Sicherheitsaspekte}
 
 Jede Anwendung muss eine sichere Umgebung zur Verfügung stellen. Vor allem 
-Webanwendungen bedürfen oft besonderer Sicherheit, da schlechtere Javascript-
+Webanwendungen bedürfen oft besonderer Sicherheit, da unsichere
 Implementierungen mit einigen Tricks umgangen werden können und Nutzer dadurch 
 Zugriff auf Daten erhalten können, welche nicht für sie bestimmt sind. Einige 
 Fragen müssen durchdacht werden, um eine nachhaltige Implementierung der 
@@ -30,35 +30,33 @@ werden kann, um alle oben genannten Problemstellungen zu lösen. Insgesamt stell
 elf Module zur Implementierung von Sicherheitsmechanismen bereit:
 
 \begin{table}[hbt]
- \caption{Spring Security Module}
+ \caption[Spring Security Module, Quelle: Walls (2011), S. 246]{Spring Security Module \cite{walls:2011}}
   \begin{tabular}{lp{11cm}}
     \toprule 
-    \textbf{Module} & \textbf{Description} \\
+    \textbf{Modul} & \textbf{Beschreibung} \\
     \hline
-    ACL & Provides support for domain object security through access control lists (ACLs) \\
+    ACL & Kapselt den Zugriff auf Geschäftsobjekte mittels Zugriffssteuerungslisten \\
     %------------------------------------------------------------------------------------------
-    Aspects & A small module providing support for AspectJ-based aspects instead of standard
-	Spring AOP when using Spring Security annotations. \\
+    Aspects & Untestützt die Verwendung einer AspectJ-basierten Implementierung anstelle des Spring AOP Standards im Rahmen von Spring Security. \\
 	%------------------------------------------------------------------------------------------
-	CAS Client Support & for single sign-on authentication using Jasig’s Central Authentication
-	Service (CAS). \\
+	CAS Client Support & Bietet eine Single Sign-on Authentifizierung (\grqq{} Einmalanmeldung\grqq{}), die mittels der Central Authentication Service (CAS) Technik umgesetzt wird. \\
 	%------------------------------------------------------------------------------------------
-	Configuration & Contains support for configuring Spring Security with XML and Java. 
-	(Java configuration support introduced in Spring Security 3.2.) \\
+	Configuration & Unterstützt die Konfiguration von Spring Security via Java und XML 
+	(Java wird seit Spring Security 3.2. unterstützt) \\
 	%------------------------------------------------------------------------------------------
-	Core & Provides the essential Spring Security library. \\
+	Core & Liefert die essentielle Spring Security Bibliothek \\
 	%------------------------------------------------------------------------------------------
-	Cryptography & Provides support for encryption and password encoding. \\
+	Cryptography & Bietet Methoden zur Verschlüsselung und Passwortcodierung \\
 	%------------------------------------------------------------------------------------------
-	LDAP & Provides support for LDAP-based authentication. \\
+	LDAP & Unterstützt eine LDAP-basierte Authetifizierung \\
 	%------------------------------------------------------------------------------------------
-	OpenID & Contains support for centralized authentication with OpenID. \\
+	OpenID & Unterstüzt eine zentrale Authentifizierung mittels OpenID. \\
 	%------------------------------------------------------------------------------------------
-	Remoting & Provides integration with Spring Remoting. \\
+	Remoting & Sorgt für die Integration von verteilten, auf Spring basierenden Systemen. \\
 	%------------------------------------------------------------------------------------------
-	Tag Library & Spring Security’s JSP tag library. \\
+	Tag Library & Die Spring Security JSP Tag Bibliothek. \\
 	%------------------------------------------------------------------------------------------
-	Web & Provides Spring Security’s filter-based web security support. \\
+	Web & Bietet eine, auf dem Spring Security \textit{Filter} basierende Technik, zur Unterstützung von Web-Sicherheitsaspekten. \\
 	\bottomrule
   \end{tabular}
 \end{table}
@@ -73,13 +71,13 @@ importieren.
 Um Spring Security aktiv in der Anwendung nutzen zu können muss als erstes eine springSecurityFilterChain 
 Klasse implementiert werden. Wie der Name der Klasse schon sagt, handelt es sich dabei um einen Filter, der 
 jegliche ankommende Webanfragen durch alle implementierten Sicherheitsmechanismen laufen lässt, sozusagen 
-verkettet, und den Einsatz von Spring Security so erst ermöglicht. Das folgende Diagramm stellt den 
+verkettet, und den Einsatz von Spring Security so erst ermöglicht. Abbildung \ref{fig:user_privileges} stellt den 
 grudsätzlichen Ablauf einer Anfrage und deren Filterung durch Sicherheitsmechanismen dar.
 
 \begin{figure}
     \centering
     \includegraphics[width=0.85\textwidth]{Graphics/security/user_privileges}
-    \caption{Authentifizierung und Validierung der Privilegien eines Nutzers}
+    \caption[Authentifizierung und Validierung der Privilegien eines Nutzers, Quelle: \cite{javabook:sec}]{Authentifizierung und Validierung der Privilegien eines Nutzers \cite{javabook:sec}}
    \label{fig:user_privileges}
 \end{figure}
 
@@ -89,38 +87,38 @@ realisiert. Der Authentication-Provider prüft die beim Login eingegebenen Daten
 Sind die Daten nicht im Code verankert und in einer Datenbank gespeichert, wird hier zusätzlich ein 
 Jdbc-user-service benötigt, welcher die nötigen SQL-Anfragen zum Abgleichen der Nutzerdaten als 
 Parameter erwartet. Hat der Abgleich mit der Datenbank stattgefunden und die Daten waren korrekt, wird 
-die Anfrage weitergeleitet. Im obigen Diagramm wird der folgende Prozess durch den Access Decision 
+die Anfrage weitergeleitet. In Abbildung \ref{fig:user_privileges} wird der folgende Prozess durch den Access Decision 
 Manager dargestellt. Dieser ist in unserer konkreten Anwendung nicht implementiert, jedoch findet der 
-Authorisierungsprozess hier trotzdem statt. An dieser Stelle muss überprüft werden, ob der Nutzer die 
+Authorisierungsprozess hier -mittels Datenbankabfrage- trotzdem statt. An dieser Stelle muss überprüft werden, ob der Nutzer die 
 nötigen Privilegien besitzt, um eine gewisse Seite aufrufen zu dürfen. Dieser Abgleich wird ebenfalls 
 mit in der Datenbank gespeicherten Daten durchgeführt. An dieser Stelle gibt es folgende verschiedene 
 Privilegien, die Spring Security zur Authorisierung zur Verfügung stellt: \newpage
 
 \begin{table}[hbt]
- \caption{Die verschiedenen von Spring zur Verfügung gestellten Privilegien}
+ \caption[Die verschiedenen von Spring zur Verfügung gestellten Privilegien, Quelle: Walls (2011), S. 262]{Die verschiedenen von Spring zur Verfügung gestellten Privilegien \cite{walls:2011}}
   \begin{tabular}{lp{9.5cm}}
     \toprule 
-    \textbf{Expression} & \textbf{Description} \\
+    \textbf{Privileg} & \textbf{Beschreibung} \\
     \hline
-    \texttt{hasRole([role])} & Returns \texttt{true} if the current principal has the specified role \\
+    \texttt{hasRole([role])} & Gibt an, ob der aktuelle Benutzer die spezifizierte Rolle innehat \\
     %------------------------------------------------------------------------------------------
-    \texttt{hasAnyRole([role1,role2])} & Returns \texttt{true} if the current principal has any of the supplied roles (given as a comma-separated list of strings) \\
+    \texttt{hasAnyRole([role1,role2])} & Gibt an, ob der aktuelle Benutzer eine der angegebenen Rollen innehat \\
 	%------------------------------------------------------------------------------------------
-	\texttt{principal} & Allows direct access to the principal object representing the current user \\
+	\texttt{principal} & Erlaubt direkten Zugriff auf den aktuellen Benutzer \\
 	%------------------------------------------------------------------------------------------
-	\texttt{authentication} & 	Allows direct access to the current \texttt{Authentication} object obtained from the \texttt{SecurityContext} \\
+	\texttt{authentication} & Erlaubt direkten Zugriff auf das aktuelle \texttt{Authentication} Objekt \\
 	%------------------------------------------------------------------------------------------
-	\texttt{permitAll} & Always evaluates to \texttt{true} \\
+	\texttt{permitAll} & Erlaubt einen uneingeschränkten Zugriff auf eine Ressource \\
 	%------------------------------------------------------------------------------------------
-	\texttt{denyAll} & Always evaluates to \texttt{false} \\
+	\texttt{denyAll} & Verweigert den Zugriff auf eine Ressource \\
 	%------------------------------------------------------------------------------------------
-	\texttt{isAnonymous()} & Returns \texttt{true} if the current principal is an anonymous user \\
+	\texttt{isAnonymous()} & Gibt an, ob es sich bei dem aktuellen Benutzer um einen anonymen Benutzer handelt \\
 	%------------------------------------------------------------------------------------------
-	\texttt{isRememberMe()} & Returns \texttt{true} if the current principal is a remember-me user \\
+	\texttt{isRememberMe()} & Gibt an, ob der aktuelle Benutzer ein sogenannter \grqq{} remember-me user\glqq ist, also bereits zu einem früheren Zeitpunkt authentifiziert wurde. \\
 	%------------------------------------------------------------------------------------------
-	\texttt{isAuthenticated()} & Returns \texttt{true} if the user is not anonymous \\
+	\texttt{isAuthenticated()} & Gibt an, ob der aktuelle Benutzer authentifiziert ist. \\
 	%------------------------------------------------------------------------------------------
-	\texttt{isFullyAuthenticated()} & Returns \texttt{true} if the user is not an anonymous or a remember-me user \\
+	\texttt{isFullyAuthenticated()} & Gibt, an ob der aktuelle Benutzer authentifziert ist und die \grqq{} remember-me\grqq{} aktiviert hat \\
 	\bottomrule
   \end{tabular}
 \end{table} 
@@ -130,19 +128,19 @@ folgende Codesegment veranschaulicht unsere Implementierung, dieser Sicherheitsm
 
 \lstinputlisting [style=XML]{Snippets/security.xml}
 
-Das durch den Authentication-manager gekennzeichnete Codesegment zeigt die Implementierung des 
+Das durch den \texttt{AuthenticationManager} gekennzeichnete Codesegment zeigt die Implementierung des 
 Validierungsprozesses der Logindaten.
 Anhand des zweiten Abschnitts des Codesegments lässt sich erkennen, dass in unserer Anwendung z.B. die 
 Startseite und die Seite zum Erstellen eines neuen Accounts von jedem Nutzer aufgerufen werden darf, 
-da das access Attribut hier auf \texttt{permitAll} gesetzt wurde. Das Anzeigen der Tweets benötigt 
+da das \texttt{access} Attribut hier auf \texttt{permitAll} gesetzt wurde. Das Anzeigen der Tweets benötigt 
 jedoch erst eine Authentifizierung, da der access Parameter den Wert \texttt{isAuthenticated()} 
 annimmt. Natürlich könnten hier auch spezielle Bereiche für Administratoren eingerichtet werden. Das 
-access Attribut müsste dort lediglich dementsprechend parametrisiert  und die Authorität in der 
+access Attribut müsste dort lediglich dementsprechend parametrisiert und die Autorität in der 
 Datenbank hinterlegt werden.
 
-\subsection{Verschlüsselung sensibler Daten}
+\subsection{Verschlüsselung sensibler Daten}\label{subsec:secure_login}
 
-Die vorherigen Abschnitte haben gezeigt, dass Spring-Security in jeder Situation eine Lösung für die 
+Die vorherigen Abschnitte haben gezeigt, dass Spring Security in jeder Situation eine Lösung für die 
 geforderte Problemstellung liefert. Auch im Bezug auf das Verschlüsseln von sensiblen Daten wie 
 Passwörtern stellt das Modul eine einfache Lösung bereit. Da in unserer Anwendung das Anlegen von 
 Accounts möglich sein soll und Passwörter aus Sicherheitsgründen nicht im Volltext in der Datenbank 
@@ -168,7 +166,7 @@ und erfordert nur wenige Zeilen: \\
 \lstinputlisting [style=XML]{Snippets/security_auth_provider.xml} \newpage
 
 Hierzu wird ein weiterer Authentication-Provider Abschnitt erzeugt, in dem sowohl die Datenbank als 
-auch der passwordEncoder und die Art des Hashes als Parameter übergeben werden. Des weiteren muss die 
+auch der \texttt{passwordEncoder} und die Art des Hashes als Parameter übergeben werden. Des weiteren muss die 
 Klasse selbst eingebunden werden: \\
 
 \lstinputlisting [style=XML]{Snippets/security_password_encoder.xml}
@@ -176,11 +174,11 @@ Klasse selbst eingebunden werden: \\
 Die von einem Nutzer eingegebenen Passwörter werden dann mittels SHA-256 verschlüsselt und in der 
 Datenbank hinterlegt. \\
 Abschließend bleibt zu sagen, dass die meisten von uns genutzten Klassen und in diesem Kapitel 
-erläuterten Methoden nur eine Option darstellen, um jeweilige Problemstellungen zu lösen. Spring-
+erläuterten Methoden nur eine Option darstellen, um jeweilige Problemstellungen zu lösen. Spring
 Security ist ein mächtiger Service, der für jede Situation und Umgebung die nötigen Vorraussetzungen 
 liefert, sichere und serverunabhängige Anwendungen zu schreiben. Des weiteren müssen von Spring-
 Security bereitgestellte Klassen nicht zwangsläufig verwendet werden. Zum Beispiel wäre es möglich, 
-einen eigenen Filter zu implementieren und dabei auf die springSecurityFilterChain Klasse zu 
+einen eigenen Filter zu implementieren und dabei auf die \texttt{springSecurityFilterChain} Klasse zu 
 verzichten.
 
 

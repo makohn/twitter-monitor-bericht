@@ -1,45 +1,0 @@
-%=========================================
-% 	   Hardware						 =
-%=========================================
-\section{Hardware}
-Der Rechner auf dem die Anwendung läuft befindet sich im Softwarelabor der HTW-Saar. Im folgenden wird die verbaute Hardware und die vorgenommenen Anpassungen etwas näher erläutert.
-\subsection{Hardwarespezifikationen}
-Betriebssystem: Windows 7 (64-bit Version)
-\\\\
-Prozessor: Intel Core i7-4770
-\\\\
-Arbeitsspeicher: 32 GB
-\\\\
-Festplatten: Der Rechner bootet von einer 256 GB großen Solid State Drive. Auf dieser sind auch alle wichtigen Programme installiert die benötigt werden um die Anwendung starten zu können.
-\\
-Des Weiteren sind zwei 2 TB große Hard Drive Disks verbaut. Diese dienen als Speicher für die My-SQL Datenbank, die dort alle registrierten User, die gesammelten Tweets und alle weitere Informationen des Tweets dort speichert.
-
-\subsection{Angepasste Einstellungen}
-Da der Arbeitsspeicher für die Anwendung auf 32 GB aufgestockt wurde, können einige Anpassungen vorgenommen werden um die Performance von Datenbankabfragen zu verbessern.
-\\\\
-Folgende Datei wird dafür abgeändert:
-\todo[inline]{TODO: Programmpfad mit Backslash einfügen! Es kam zu Fehlern}
-%C:\ProgrammData\MySQL\My SQL Server 5.7\my.ini
-Im Original hat die Datei den folgenden Aufbau:
-\\
-query\underline \space cache \underline \space size = 16M
-\\key\underline \space buffer\underline \space size = 256M
-\\innodb\underline \space buffer\underline \space pool\underline \space size = 8M\\\\Die Änderungen an dieser Datei sehen wie folgt aus:
-\\
-query\underline \space cache \underline \space size = 512M
-\\key\underline \space buffer\underline \space size = 8G
-\\innodb\underline \space buffer\underline \space pool\underline \space size = 8G
-\\\\
-Erläuterung der einzelnen geänderten Parameter:
-\\\\
-query\underline \space cache \underline \space size:
-\\Die Größe des Speichers, die von MySQL für die kompletten Ergebnisse von häufig verwendeten Abfragen-Cache verwendet. Der Standardwert ist 0, was bedeutet, dass Query-Caching deaktiviert ist.
-\\\\
-key\underline \space buffer\underline \space size:
-\\Die Menge des verwendeten Speichers von häufig verwendeten Indizes. Dieser Cache ist global und von allen MySQL-Clients benutzt werden. Die maximal zulässige Größe beträgt 4 GB auf einem 32 -Bit-Maschine.
-\\\\
-innodb\underline \space buffer\underline \space pool\underline \space size:
-\\Gibt die Größe des Pufferpools an. Durch die Vergrößerung des Pufferpools, wird die Leistung gesteigert, indem die Menge an Festplattenzugriffen reduziert wird, weil die Abfragen auf die InnoDB-Tabellen zugreifen.
-\\\\
-Folgen der Änderung:
-\\\\Die Dauer von Abfragen wurde drastisch minimiert, z.B.  benötigte vor der Änderung zwischen 35 und 40 Sekunden. Nach der manuellen Speicherzuweisung dauert die Abfrage nur noch zwischen 0,2 und 0,4 Sekunden, wenn man vom Localhost darauf zugreift. Über ein Netzwerk dauer die Abfrage dann rund 0,1 Sekunden länger.\\Diese Beispielwerte wurden mit einer Abfrage gemacht, als die Tabelle eine Größe von ungefähr 1,6 Millionen Zeilen hatte!

@@ -40,31 +40,97 @@ Nutzung der Projektgruppe aufgelistet.
 \subsection{Spring als Grundlage für das Projekt}
 
 Die konkrete Implementierung ist maßgeblich von der Entscheidung für das Spring Framework
-geprägt. Dieses bietet einerseits eine einfache Möglichkeit zum Aufbau einer Java­Server­basierten
-Web­Anwendung und andererseits eine flexible Datenbank­Schnittstelle. Dadurch ermöglicht es
-die Kapselung der eigentlichen Funktionalität im Java­Code, während die Datenbank und die
-Website unabhängig davon aufgebaut werden können. Auch intern erleichtert Spring den
-Aufbau der zweiteiligen Streaming­Architektur (Wiring und DI zur Erstellung des Streams) und
-bietet daneben noch zahlreiche weitere hilfreiche Elemente (Autowiring, Scheduler, Login,
-Verschlüsselung). \\
-Spring besteht aus einzelnen Komponenten, die unabhängig voneinander je nach
-Bedarf verwendet werden können.
-Das Grundprinzip von Spring besteht in der deklarativen Art der Objekterstellung durch
-Wiring und Dependency Injection. Darunter versteht man die automatische Erstellung und
-Referenzierung von Objekten in einem gemeinsamen Application Context. Explizite
-Konstruktoraufrufe (in einem Boiler Plate­Code) sind nicht mehr notwendig. Da es sich bei allen
-Objekten in der Anwendung außerdem um Einzelstücke selbsterstellter Klassen handelt, kann
-selbst die Deklaration an sich dem Autowiring überlassen werden. Alle Klassen, die als zu
-erstellende Beans/Komponenten markiert sind, werden beim Anwendungsstart mit Referenzen
-auf andere Beans/Komponenten aus dem Application Context, die anhand des benötigten
-Datentyps identifiziert werden, instantiiert.
-In der Anwendung wird diese grundlegende Architektur unter anderem auch verwendet, um zum
-Anwendungsstart ein Objekt zu erstellen, das für die Erstellung und Verwaltung des Streams
-zuständig ist. \\
-Eine Spring­Web­Anwendung verwendet außerdem zentral die mvc­Komponente um Webpages zu
-erstellen und mit Daten aus der Anwendung zu versorgen. Dazu empfängt in einer laufenden
-Serveranwendung zunächst ein zentrales DispatcherServlet alle HTTP­Requests und verteilt diese
-dann an die passenden Controller. Dieser befragt die verschiedenen Services eventuell nach
-Daten und speichert diese in einem Model. Außerdem liefert der Controller ein JSP. Aus den
-Daten aus dem Model und der JSP wird schließlich die Webpage generiert und im Response
-versendet.
+geprägt. Dieses bietet einerseits eine einfache Möglichkeit zum Aufbau einer Servlet-basierten
+Webanwendung und andererseits eine flexible Datenbank­schnittstelle. Dadurch ermöglicht es
+die Kapselung der eigentlichen Funktionalität in Java Servlets, während die Datenbank und die
+Website unabhängig davon aufgebaut werden können. Spring bietet einen modularen Aufbau, somit können
+verschiedene Spring Bibliotheken einzeln oder in Kombination verwendet werden. Für dieses Projekt kommen
+insbesondere folgende Module zum Einsatz: \\
+\begin{itemize}
+	\item Die beiden Module \texttt{spring-core} und \texttt{spring-beans} bilden das Fundament des Spring-Frameworks und sind somit unverzichtbar. Sie unterstützen das Konzept der Steuerungsumkehr (\textit{Inversion of Control}) und die entsprechende Erzeugung von \textit{Spring Beans}.
+	\item Das \texttt{spring-jdbc} Modul unterstützt JDBC-basierte Anwendungen etwa bei dem Aufbau der Datenbankverbindung, der Konfiguration einer \texttt{Data Source} oder der Erzeugung von \textit{Prepared Statements}.
+	\item Das \texttt{spring-webmvc} Modul wird für die Interaktion mit REST-basierten Webservices, sowie für die Implementierung einer \acs{MVC}-Architektur benötigt.
+	\item Das \texttt{spring-security} Paket stellt ein eigenständiges Spring Sub-Projekt dar und kann wiederum in diverse Module unterteilt werden. Es bietet in erster Linie verschiedene Methoden zur Authentifizierung und Autorisierung in J2EE-Anwendungen.
+\end{itemize}
+
+\subsubsection*{Spring Beans}
+Spring grenzt sich von anderen \textit{Java Enterprise} Frameworks insofern ab, als dass keine standardisierten Komponenten, wie etwa \acs{EJBs}, verwendet werden, sondern vielmehr eine lose Kopplung von \acs{POJO}s\footnote{Ein \ac{POJO} ist in diesem Kontext ein Objekt, das nicht mittels Oberklassen oder Interfaces spezialisiert ist. Es stellt somit die einfachste Form eines Objektes im Sinne der Objektorientierung dar.} fokussiert wird. In diesem Zusammehang bezeichnet man die Objekte einer auf Spring basierten Anwendung auch als \textit{Spring Beans}. Jede \textit{Spring Bean} Instanz definiert sich über konfigurationsspezifische Metadaten, die entweder explizit (mittels Java oder XML) oder implizit (mittels \textit{Autowiring}) festgelegt werden. In Tabelle \ref{tab:spring_config} sind die wichtigsten Eigenschaften einer \textit{Spring Bean} in Bezug auf Konstruktion, Lebenszyklus und Abhängigkeiten aufgelistet. 
+
+\begin{table}[!ht]
+\caption[Konfiguration einer \textit{Spring Bean}, in Anlehnung an \cite{tuto:beans}]{Konfiguration einer \textit{Spring Bean} \cite{tuto:beans}}
+\label{tab:spring_config} 
+  \begin{tabular}{p{4.8cm}p{9.4cm}}
+    \toprule 
+    \textbf{Eigenschaft} & \textbf{Beschreibung}  \\
+    \hline 
+    \texttt{class} & Legt die Klasse einer \textit{Bean} fest. \\
+    \texttt{name / id} & Indentifiziert jede \textit{Spring Bean} eindeutig. \\
+    \texttt{scope} & Spezifiziert den Kompetenzbereich einer \textit{Bean}. Unterschieden wird hierbei zwischen Singleton, Prototyp, Request und Session. \\
+     \texttt{constructor-arg} & Definiert die, bei einer Konstruktor-basierten \textit{Dependency Injection} auftretenden Abhängigkeiten als Konstruktorargumente \\
+      \texttt{properties} & Definiert die, bei einer \texttt{Setter}-basierten \textit{Dependency Injection} auftretenden Abhängigkeiten als Methodenparameter \\
+      \texttt{autowiring mode} & Aktiviert die Konfiguration von Abhängigkeiten mittels \textit{Autowiring}. \\
+      \texttt{lazy-initialization mode} & Impliziert eine Erstellung der Instanz nach tatsächlichem Bedarf, im Gegensatz zu einer Konstruktion beim Starten des Programms. \\
+      \texttt{initialization method} & Definiert eine Methode, welche unmittelbar nach der Initialisierung einer \textit{Bean} aufgerufen wird. \\
+      \texttt{destruction method} & Definiert eine Methode, welche unmittelbar nach der Destruktion einer \textit{Bean} aufgerufen wird. \\
+   	\bottomrule
+  \end{tabular}
+\end{table}
+
+\newpage
+Ein Anwendung für die explizite Angabe von Konfigurationsdetails via XML, findet sich am Beispiel dieses Projektes in der Definition des \texttt{ViewResolvers}, welcher in den Abschnitten \ref{subsec:spring_mvc} und \ref{sec:frontend} genauer betrachtet wird:
+\smallskip
+\begin{lstlisting}[style=XML]
+<bean id="ViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsps/"></property>
+		<property name="suffix" value=".jsp"></property>
+</bean>
+\end{lstlisting} 
+\medskip 
+
+\subsubsection*{Inversion of Control}
+Einhergehend mit der losen Kopplung von \textit{Spring Beans}, werden deren Abhängigkeiten zu anderen Klassen zentral verwaltet. Man spricht hier von Steuerungsumkehr oder auch \textit{Inversion of Control} (\acs{IoC}). Darunter versteht man insbesondere die automatische Erstellung und
+	Referenzierung von Objekten durch eine gemeinsame \texttt{ApplicationContext} Instanz. Abbildung \ref{fig:spring_context} veranschaulicht dieses Konzept.	
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{Graphics/spring_context}
+    \caption[Grundprinzip einer Springanwendung, in Anlehnung an: \cite{tuto:ioc}]{Grundprinzip einer Springanwendung \cite{tuto:ioc}}
+   \label{fig:spring_context}
+\end{figure}
+%
+Auf diese Art und Weise können Abhängigkeiten einer \textit{Bean} unter Berücksichtigung der Konfigurationsdaten während der Laufzeit erzeugt werden. Dies wird im Allgemeinen auch als \textit{Dependency Injection} bezeichnet. Man unterscheidet dabei zwischen einer Injizierung der Abhängigkeiten mittels Konstruktor (\textit{Constructor Injection}) oder mittels einer eigens dafür vorgesehenen Methode (\textit{Setter Injection}). Wie bereits erwähnt, kann die Konifguration der Beziehungen zwischen Beans automatisch erfolgen.
+\newpage
+\subsubsection*{Autowiring}
+\textit{Autowiring} bezeichnet im Wesentlichen die implizite Verknüpfung von \textit{Spring Beans} durch das Spring-Framework selbst. Ziel dabei ist es den Konfigurationsaufwand zu minimieren. Um dies zu erreichen, muss der \texttt{ApplicationContext} Beans automatisch finden und als solche erkennen können. Dieser Prozess ist als \textit{Component Scanning} in das Framework integriert, muss aber unter Angabe des Packages, in dem sich die zugehörigen Klassen befinden, explizit aktiviert werden:
+\medskip
+\begin{lstlisting}[style=XML]
+<context:component-scan base-package="de.htwsaar.db">
+			</context:component-scan>
+<mvc:annotation-driven></mvc:annotation-driven>
+\end{lstlisting} 
+\medskip 
+Ebenso müssen Klassen, welche als \textit{Bean} instanziiert werden sollen, mittels \textit{Annotation} als solche gekennzeichnet werden. Das \textit{spring-webmvc} Modul unterstützt hierbei verschiedene Annotationen, wie etwa \texttt{@Controller}, \texttt{@Service} oder \texttt{@Component}, welche die jeweilge Schicht der Architektur widerspiegeln. Darüber hinaus kann die Annotation durch einen Namen qualifiziert werden, sodass später eine eindeutige Zuordnung möglich ist.
+\medskip
+\begin{lstlisting}[style=Java]
+@Component("keywordDao")
+public class KeywordDao { 
+	...
+}
+
+...
+
+@Service
+public class KeywordService {
+
+	private KeywordDao keywordDao;
+
+	@Autowired
+	public KeywordService(KeywordDao keywordDao) {
+		this.keywordDao = keywordDao;
+	}
+...
+}
+\end{lstlisting} 
+\medskip 
+Im obigen Beispiel veranlasst die Annotation \texttt{@Autowired} nun ein Scannen der Komponenten. Wird hierbei die entsprechende Bean gefunden, kann diese instanziiert und referenziert werden. 
+ 

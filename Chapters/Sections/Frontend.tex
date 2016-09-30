@@ -2,100 +2,33 @@
 % 	   Frontend							 =
 %=========================================
 \section{Frontend} 
+\label{sec:frontend}
+Zur Steuerung der Anwendung durch den Benutzer dient eine Website. Die einzelnen Seiten werden durch ein gemeinsames, auch in gleichen Farben gehaltenes Design, das durch CSS organisiert wird, zusammengehalten. Alle Seiten besitzen eine Kopfsektion zur Verwaltung und eine Rumpfsektion für den eigentlichen Inhalt. Auf allen Seiten, mit Ausnahme der Startseite, befindet sich im Kopfteil ein Menü zur Navigation.  Die eigentliche Funktionalität verteilt sich dabei auf die vier Seiten \textit{Tweets}, \textit{Keywords}, \textit{Einstellungen} und \textit{Anleitung}. Das Menü bietet außerdem eine \textit{Logout}-Option. \\
+Die Erstellung der Webpages erfolgt über \ac{JSP}. Dabei handelt es sich um eine Programmiersprache zur dynamischen Erstellung von Webseiten durch einen Webserver, die auf HTML und Java basiert. JSPs erlauben die Einbettung von Java-Code in eine herkömmliche HTML-Webseite. In der Anwendung wird dies jedoch hauptsächlich zur Implementierung eines sicheren Logins verwendet. Ihr eigentlicher Verwendungszweck ergibt sich aus der Verwendung von Spring MVC. \acs{JSP}s stellt eine Möglichkeit dar, eine View zu implementieren. Eine Client-Anfrage wird von einem Controller der Spring-Anwendung verarbeitet. Als Antwort erstellt der Server eine Webseite anhand einer JSP und einem Datenmodell. Auf die Daten des Models lässt sich dann im JSP etwa mit der sogenannten \textit{Expression Language} zugreifen. Aber auch diese Funktionalität wird in der Anwendung kaum genutzt. Um zu häufiges Neuladen und Neukompilieren der Seiten zu verhindern, werden sie selbst durch Client-seitiges Javascript dynamisch gehalten. Eine Seite wird nur dann völlig neu geladen, wenn über das Menü auf sie gewechselt wird. Dabei werden lediglich die statischen Elemente, wie Menü und Schaltflächen, beim konkreten Seitenaufruf geladen. Die restlichen Elemente, die den eigentlichen Inhalt darstellen, werden im Nachhinein mit asynchronen Anfragen durch Javascript in JSON-Objekten nachgeladen. \\\\
+%
+In den folgenden Abschnitten werden die, für die unmittelbare Nutzerinteraktion relevanten Seiten hinsichtlich ihrer Funktionalität und Implementierung betrachtet. 
+%
+\subsection{Home}
+Der Nutzer betritt die Anwendung über die Startseite. Diese erfüllt die zwei Aufgaben Login und Registrierung. Die Seite ist ebenfalls in zwei Bereiche aufgeteilt, besitzt jedoch noch kein Menü, da die Navigation zu den meisten Seiten erst im Zusammenhang mit einem bestimmten angemeldeten Nutzer sinnvoll ist. Beim Aufruf der Seite befindet sich im Kopfbereich ein Login-Interface und es wird im unteren Bereich eine Animation angezeigt, die versucht den Umstand der täglichen Flut an Tweets, den die Anwendung adressiert, auf einen Nenner zu bringen. Bereits vor der Registrierung soll dem Benutzer so ohne große Erklärung klar werden, um was es sich bei der Anwendung handelt. \\
+Im Login-Teil kann sich der Anwender mit einem Benutzernamen und einem Passwort anmelden. Dabei wird neben diesen beiden Werten außerdem ein CSRF-Token übergeben, um die Login-Sitzung vor entsprechenden Täuschungsversuchen zu schützen. Die Anmeldung der Anwendung nutzt den Login-Mechanismus von Spring Security. Nach dem Login ist der verwendete Benutzername für einen Controller aus dem Request einer Seite ersichtlich. Der Nutzer wird auf die Seite \textit{Tweets} weitergeleitet, sobald seine Daten verifiziert sind. \\
+Wenn noch kein Account existiert, kann der Nutzer ein neues Konto erstellen. Durch einen Klick auf die entsprechende Schaltfläche unter dem Login-Interface wird anstelle der Animation ein Registrierungsformular eingeblendet. Um die Absprungrate möglichst gering zu halten, werden vom Anwender nur wenige Daten erfragt. Außer einem Benutzernamen und einem Passwort ist lediglich die Angabe einer Email-Adresse, an die eventuell Benachrichtigungen gesendet werden sollen, erforderlich. Diese Daten müssen jedoch auch bestimmten Richtlinien entsprechen. Der Benutzername muss etwa mindestens fünf Zeichen, das Passwort mindestens acht Zeichen lang sein. Und auch die Email-Adresse muss die richtige Form aufweisen. Registrierungsanfragen mit fehlerhaften Werten werden von der Anwendung ignoriert. Deshalb wird bereits im Frontend das Format überprüft und anhand von entsprechenden farblichen Markierungen und Meldungen  auf Fehler aufmerksam gemacht. Nach der Registrierung wird die Startseite neu geladen, damit sich der Nutzer mit seinem neuen Account anmelden kann.
+%
+\subsection{Tweets}
+Auf der Seite \textit{Tweets} kann der Nutzer die für ihn gesammelten Tweets sichten. Der Hauptbereich der Seite ist dazu in einen Anzeigebereich, der die eigentlichen Tweets auflistet, und eine Sidebar, die verschiedene Möglichkeiten zur Bearbeitung der Anzeige bietet, eingeteilt. \\
+Die Liste der Tweets wird dynamisch durch eine Javascript-Funktion generiert. Zur Darstellung eines Tweets gehören neben dem eigentlichen Content, also dem Text und einem eventuellen angehängten Bild, vor allem der Name und ein Bild des Autors sowie Entstehungszeit und -ort des Tweets. Zur Übertragung der Tweet-Daten stellt die Seite mittels Javascript eine Anfrage an den Webserver. Die Tweets werden in Form eines JSON-Objekts bereitgestellt, das einer entsprechenden Funktion übergeben wird. Diese Funktion erstellt für jeden Tweet einen Container, der an die angezeigte Liste angehängt wird. Zur weiteren Bearbeitung der aktuell geladenen Tweets werden diese außerdem lokal gespeichert. Die Seite \textit{Tweets} lädt außerdem stets die Keywords des aktuellen Nutzers und hebt diese durch rote Farbe in den Tweet-Texten hervor. \\
+Die Optionen in der Sidebar dienen teilweise dieser weiteren lokalen Bearbeitung von geladenen Tweets und teilweise dazu weitere Anfragen zu stellen. Die Seite lädt initial zunächst die hundert interessantesten Tweets des Benutzers. Mit dem Button \glqq Tweets aktualisieren\grqq{} wird diese anfängliche Anfrage wiederholt, um die Anzeige auf den neuesten Stand zu bringen. Die aktuell geladenen Tweets werden durch die Eingabe eines Suchbegriffs in das entsprechende Eingabefeld gefiltert. Durch einen Klick auf den Button \glqq Deep Search\grqq{} wird eine neue Anfrage gestellt, die alle Tweets des Benutzers mit diesem Suchbegriff liefert. Das Ergebnis kann weiter gefiltert werden. Die anfängliche Sortierung der Tweets nach ihrer Priorität kann auch gemäß ihres Alters erfolgen. Das Sortierkriterium wird in einem Drop-Down-Menü ausgewählt. In einem weiteren Drop-Down-Menü kann die Sprache der Tweets, die angezeigt werden, gewählt werden. \\
+Eine weitere Funktionalität der Sidebar betrifft bereits die Festlegung von Keywords. Die beiden Buttons \glqq Keyword\grqq{} und \glqq Blacklist\grqq{} fügen den aktuell markierten Text in die entsprechende Liste hinzu. Dadurch kann der Nutzer bereits beim Sichten der Tweets weitere interessante Themen hinzufügen und vor allem unliebsame Themen, die sich mit interessanten Themen überschneiden, ausblenden.
+%
+\subsection{Keywords}
+Die Seite \textit{Keywords} ermöglicht die Verwaltung von Schlüsselwörtern und der Blacklist des Benutzers. Die Keywords werden links angezeigt. Die Blacklist steht rechts. Unter jeder der beiden Listen befindet sich ein Eingabefeld und ein Button zum Hinzufügen der Eingabe in die entsprechende Liste. Außer dem Keyword selbst gibt jede Zeile der Keyword-Liste die Priorität, die der Benutzer dem Begriff zugewiesen hat, in Form von gelb ausgefüllten Sternen an. Die Begriffe auf der Blacklist müssen nicht priorisiert werden. In beiden Listen gibt es außerdem für jeden Begriff einen \glqq Pause\grqq{}-Button und einen \glqq Delete\grqq{}-Button. Wird ein Begriff auf der Keyword-Liste pausiert, so wird er in der Anzeige auf \textit{Tweets} nicht mehr in Betracht gezogen. Ein pausierter Blacklist-Begriff wird nicht mehr herausgefiltert.
+%
+\subsection{Einstellungen und Anleitung}
+Die \textit{Einstellungen} dienen dazu die Daten des eigenen Benutzerkontos einzusehen und zu ändern. Dazu gehört vor allem die Möglichkeit sein Passwort und seine Email-Adresse zu ändern sowie die automatische Benachrichtigung von neuen Tweets zu aktivieren oder deaktivieren. Schließlich wird hier die Möglichkeit gegeben seinen Account unwiderruflich zu löschen. Bei allen Änderungen am Account wird durch einen Dialog sichergestellt, ob die Änderungen wirklich gewollt sind. \\
+Obwohl darauf geachtet wurde den Zweck und die Funktionsweise der Anwendung möglichst intuitiv zu gestalten, kann nicht davon ausgegangen werden, dass jeder Nutzer die Möglichkeiten auf Anhieb erkennt. Deshalb werden auf der Seite \textit{Anleitung} außerdem auch explizite Anweisungen gegeben, wie die Bedienung ablaufen sollte. Auch hier wird jedoch auf eine möglichst kurze Erklärung abgezielt.
+%--------------------------------------------------------------------------------------------------------------
 
 
-\subsection{Programmierspezifische Mittel}
-\medskip
-\ac{JSP} erlauben es mittels eines Präprozessors eine HTML basierte 
-Website zu erstellen, die das Hinzufügen von Java-Code inmitten des HTML-Codes erlaubt. Dazu bedient 
-man sich bestimmter Tag-Bibliotheken. \\
-Die Ausrichtung verschiedener Elemente auf einer Website sowie der Bestimmung farblicher 
-Aspekte wird von CSS übernommen. Da CSS vom Browser des jeweiligen Clients interpretiert und umgesetzt wird, benötigt eine Änderung von CSS-Attributen keine Neukompilierung der \acs{JSP}. DIese Eigenschaft ermöglicht 
-die Neuausrichtung von Elementen bei Erfüllung einer Bedingung oder durch eine Javascript-Funktion. \\
-Javascript ist eine höhere Skriptsprache die vom Browser des Clients interpretiert wird und 
-ermöglicht zum einen eine funktions- sowie objektorientierte Programmierung. Sie kann aktiv auf HTML-
-Elemente  zugreifen und sie verändern sowie neue HTML-Elemente dynamisch erstellen. 
-Javascript hat auch die Eigenschaft CSS-Datein manipulieren zu können. Da auch Javascript keine 
-Neukompilierung der JSP nach sich zieht, werden Veränderungen während der Laufzeit umgesetzt.\\
-Mit dem Java-Framework Spring wird das Architekturmuster MVC umgesetzt. Das MVC definiert Controller, 
-die als Bindeglied zwischen dem Model, welches  hauptsächlich  mit Java Umgesetzt wird und dem View 
-gelten. Ein Controller kann den Datenaustausch zwischen dem Model und Browser des Clients steuern.
 
-\subsection{Konkreter Aufbau}
-Die Ziele die unser Team im Design verfolgen sind vor allem eine schnelle Orientierung zu ermöglichen, sowie eine daraus folgende unkomplizierte Anwendung für den Benutzer bereitzustellen. Heutzutage geht der Trend immer mehr zur One-Page-Website. Diese Art des Designs verbirgt Ihre Komplexität durch Links und Buttons innerhalb der durch Scroll erreichbaren Bereiche. Dies birgt jedoch die Gefahr, dass gesuchte Funktionen nicht gleich auf Anhieb gefunden werden können. Aus diesem Grund haben wir uns für ein Multi-Page-Layout entschieden, um die für den Benutzer relevanten Funktionen aufzuteilen und in folgenden Seiten widerzuspiegeln. Dies sind über ein Menü jederzeit erreichbar. 
 
-\subsubsection*{Home}
-Dem Benutzer soll es ermöglicht werden über eine Eingabemaske ein Konto anzulegen. Das Konto dient zur 
-individuellen Zuweisung von Tweets und Keywords zu einem Benutzer. Die vom Benutzer geforderten Daten 
-sollten nicht zu umfangreich sein, da sich eine schnelle Abwicklung des Prozesses positiv auf die 
-Absprungrate auswirkt. Trotzdem sollten die Daten den  Benutzer eindeutig identifizieren können. 
-Zudem müssen Eingaben validiert werden, um Eingabefehlern vorzubeugen und Sicherheitsaspekte umsetzen 
-zu können. Die Validierung sollte schon während der Laufzeit erfolgen, so dass dem Benutzer die 
-Möglichkeit gegeben werden kann seine Eingaben unmittelbar zu korrigieren. \\
-In folgendem Abschnitt wird darauf eingegangen wie wir diese Anforderungen umgesetzt haben.\\
-Auf der Seite Home sind zwei Hauptbereiche dargestellt, die jeweils in zwei Unterbereiche 
-untergliedert sind. Der erste Hauptbereich ist der \texttt{Header}. Er beinhaltet zum einen ein Logo 
-und eine Login-Interface. 
-Das Login-Interface beinhaltet ein Textfeld für den Benutzernamen, sowie ein besonderes 
-Passworttextfeld, dass die Eingabe nicht als Klartext wiedergibt. Zum anderen enthält die Eingabemaske 
-einen Button, der Mittels einer Post-Message die Daten der beiden Textfelder an einen Controller des 
-Servers weiterreicht. Natürlich muss hierbei die JSP neu geladen werden. Mit der Spring-Security-
-Bibliothek und einem CRF-Tokens ist es möglich diese Nachricht sicher abzufangen, an das 
-Springframework weiterzureichen und eine Session für einen bestimmten Nutzer zu erstellen. Nachdem 
-der Abgleich der Eingaben und der in der Datenbank gespeicherten Werte erfolgreich verlief, wird der 
-Benutzer mittels eines an das  Spring-Security-Bibliothek gebundenen Controllers ,auf die Seite 
-\textit{Tweets} weitergeleitet. 
-Der zweite Hauptbereich enthält eine Animation die Mittels Javascript und CSS ermöglicht wurde. Dies 
-geschieht indem mehrere, zeitlich versetzte Javascript-Funktionen den CSS-Code manipulieren, wobei die 
-Animation selbst jedoch von CSS-Seite verwirklicht wird, da CSS auch Bewegungsabläufe darstellen kann. 
-Unterhalb des Login-Interfaces befindet sich ein Hyperlink der die Darstellung der Animation 
-unterbindet und eine neue Eingabemaske, die zuvor in der JSP deklariert wurde, sichtbar macht. Diese 
-Eingabemaske dient dem Erstellen eines neuen Benutzerkontos. Jedes der Textfelder führt bei Eingabe 
-eines Characters  eine Javascript-Funktion aus, welche die Eingaben validiert und dynamisch eine 
-entsprechende Ausgabe liefert. Auch bei dieser Eingabemaske wird eine POST-Message gesendet, die aber 
-nicht von Spring-Security abgefangen, sondern mittels der JSTL-Tag-Library an einen 
-\texttt{Controller} gebunden wird. 
 
-\subsubsection*{Tweets}
-Die durch ein Keyword gefilterten Tweets müssen übersichtlich dargestellt werden. Ein dargestellter 
-Tweet sollte aus folgenden Teilen zusammengesetzt sein:
-\begin{itemize}
-\item{Tweet-Text}
-\item{Tweet-Bild}
-\item{Tweet-Author}
-\item{Tweet-Zeit}
-\end{itemize} 
-Die Liste der dargestellten Tweets sollte sich  während einer Session selbstständig aktualisieren.\\
-Die Umsetzung dieser Kriterien wurde in auf der Seite Tweets umgesetzt.\\
-Während die Seite Home hauptsächlich in der JSP selbst definiert wird, nutzt die Seite Tweets vor 
-allem den Vorteil von Javascript, dynamisch HTML-Elemente zu erzeugen. Wird die Tweets-Seite geöffnet, 
-erstellt ein bestimmter Controller eigenständig eine JSP, dessen Inhalt alle Tweets in Form von einem 
-JSON-Objektes bereitstellt. Dieses Objekt wird von einer Javaskript-Funktion aufgegriffen. Die besagte 
-Funktion erstellt für jeden Tweet im Objekt einen Tweet-Container, der alle Tweet-Attribute Formatiert 
-darstellt. Zudem Verfügt die Seite Tweets über eine Sidebar mit Funktionen zur Suche von Schlagwörtern 
-und Sortierung innerhalb der aktuell angezeigten Liste von Tweets. Diese Funktionen wurden 
-ausschließlich mit Java-Skript realisiert, um häufigen Übertragungen zwischen Client und Server 
-vorzubeugen und die Performance zu verbessern.
-
-\subsubsection*{Keywords}
-Es soll eine Schnittstelle bereitgestellt werden, mit dem man Keywords erzeugen, bearbeiten und 
-löschen kann. Zudem muss eine einfache Vergabe von Prioritäten möglich gemacht werden.\\
-Die Seite Keywords dient zur Erstellung und Darstellung von Keywords und negativen Keywords, die das Einschließen bzw. Ausschließen von Tweets ermöglicht. Wie auch bei der Seite Tweets 
-sorgt ein Controller zur Übergabe eines JSON-Objektes. Diesmal werden keine Tweets sondern Keywords 
-übergeben. Die durch Javascript erzeugten Keyworter bestehen aus drei Elementen. Dem Keyowrd selbst , 
-fünf Sternen zur Symbolisierung  der Priorität und einem Symbol zum Löschen des Kewords. Die Sterne 
-wurden mit einem Hover-Effekt belegt, der die Anzahl der Prioritätspunkte wiedergibt. Bei einem Klick 
-auf einen Stern wird mit einem Javascript-Framework namens AJAX eine Nachricht an den Server gesendet 
-ohne dabei die Seite neu zu Laden. Diese Nachricht wird von einem Controller empfangen und speichert 
-die Priorität eines Keywords in der Datenbank. Um ein neues Keyword zu erstellen wurde unter der Liste 
-von bereits existierenden Keywords ein Textfeld mit einem Button implementiert. Auch hier gilt das 
-AJAX-Prinzip, um die Seite nicht neu laden zu müssen. Negative Keywords werden nach dem selben Muster erstellt und angezeigt, verfügen jedoch nicht über eine Prioritätsvergabe.
-
-\subsubsection*{Einstellungen}
-Es  muss die Möglichkeit gegeben sein, sein Passwort zu ändern und gegebenenfalls eine Email-Benachrichtigung aktivieren oder deaktivieren zu können. \\
-
-\subsubsection*{Logout}
-Desweiteren sollte es dem Benutzer möglich sein sich auszuloggen, um die Sicherheit von 
-Mehrbenutzersystemen zu gewährleisten. Außerdem muss die Möglichkeit gegeben sein, sein Passwort zu 
-ändern und gegebenenfalls eine Email-Benachrichtigung aktivieren oder deaktivieren zu können.
 
