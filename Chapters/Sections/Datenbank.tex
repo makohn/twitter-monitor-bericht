@@ -13,7 +13,7 @@ von der Datenbank angeboten.
 
 \subsection{Stored-Procedures und Stored-Functions}
 
-Stored-Procedures und -Functions werden direkt auf dem \acs{DBMS} ausgeführt, bieten eine hohe Performance und ermöglichen auch komplexere Operationen einfach zu implementieren. Zusätzlich wird die Kommunikation mit der Server-Anwendung verringert und damit auch der Netzwerk-Traffic. Sie erhöhen außerdem die Wartbarkeit, weil der Code nur noch zentral an einer Stelle angepasst werden muss.
+Stored-Procedures und -Functions werden direkt auf dem \acs{DBMS} ausgeführt, bieten eine hohe Performance und ermöglichen auch komplexere Operationen einfach zu implementieren. Zusätzlich wird die Kommunikation mit der Serveranwendung verringert und damit auch der Netzwerkverkehr. Sie erhöhen außerdem die Wartbarkeit, weil der Code nur noch zentral an einer Stelle angepasst werden muss.
 
 \begin{table}[!ht]
 \small 
@@ -54,7 +54,7 @@ aufrufen:
 
 
 \subsection{Events}
-
+\label{subsec:events}
 Damit der Event-Scheduler auch nach einem Neustart läuft wurde in der Konfigurationsdatei unter 
 \texttt{mysqld} der Eintrag „event\_scheduler=on“ hinzugefügt.
 
@@ -143,7 +143,7 @@ Es wurden zwei Benutzer für die Benutzung der TwitterMonitor-Datenbank angelegt
     \texttt{email} &  E-Mail Adresse  & \texttt{varchar(60)} & & & X   \\
     \texttt{password} &  Verschlüsselter Password-String & \texttt{varchar(80)} & & & X  \\
     \texttt{enabled} & Gibt an ob das Nutzerkonto aktiv ist oder nicht   & \texttt{tinyint} & & & X \\
-    \texttt{registeredAt} & Zeitpunkt, wann das Interessenprofil angelegt wurde & \texttt{datetime)} & & &   \\
+    \texttt{registeredAt} & Zeitpunkt, wann das Interessenprofil angelegt wurde & \texttt{datetime} & & &   \\
    	\bottomrule
   \end{tabular}
 \end{table}
@@ -154,8 +154,8 @@ Es wurden zwei Benutzer für die Benutzung der TwitterMonitor-Datenbank angelegt
 	\toprule 
 	\textbf{Attribut} & \textbf{Beschreibung} & \textbf{Datentyp} & \textbf{PK} & \textbf{FK} & \textbf{NN} \\
 	\hline 
-	\texttt{username} & \texttt{varchar(60)} & X & X & X   \\
-	\texttt{authority} &  & \texttt{varchar(60)} & & & X   \\
+	\texttt{username} & Der Benutzername &\texttt{varchar(60)} & X & X & X   \\
+	\texttt{authority} & Die Autorität des Benutzers & \texttt{varchar(60)} & & & X   \\
 	\bottomrule
 	\end{tabular}
 \end{table}
@@ -169,9 +169,9 @@ Es wurden zwei Benutzer für die Benutzung der TwitterMonitor-Datenbank angelegt
 		\texttt{keyword} &  Schlagwort  & \texttt{varchar(50)} & X & & X   \\
 		\texttt{username} & Benutzername & \texttt{varchar(60)} & X & X & X   \\
 		\texttt{active} &  Gibt an, ob Tweets zu diesem Tweet dem Benutzer angezeigt werden sollen & \texttt{int} & & & X   \\
-		\texttt{priority} &  Priorisierung von 1 (niedrigste) bis 5 (höchste) & \texttt{int)} & & & X  \\
+		\texttt{priority} &  Priorisierung von 1 (niedrigste) bis 5 (höchste) & \texttt{int} & & & X  \\
 		\texttt{positive} & Gibt an, ob das Keyword auf der Whitelist (1) oder Blacklist (0) steht & \texttt{int} & & & X \\
-		\texttt{registeredAt} & Zeitpunkt, wann das Keyword angelegt wurde & \texttt{datetime)} & & &   \\
+		\texttt{registeredAt} & Zeitpunkt, wann das Keyword angelegt wurde & \texttt{datetime} & & &   \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -238,7 +238,7 @@ Es wurden zwei Benutzer für die Benutzung der TwitterMonitor-Datenbank angelegt
 		\texttt{subject} & Betreff & \texttt{varchar(60)} & & & X  \\
 		\texttt{body} & Inhalt der Nachricht & \texttt{text} & & & X  \\
 		\texttt{createdAt} & Zeitpunkt, an dem die Benachrichtigung erstellt wurde & \texttt{datetime} & & &  \\
-		\texttt{sentAt} & Zeitpunkt, an dem die Benachrichtigung versendet wurde & \texttt{datetime)} & & & \\
+		\texttt{sentAt} & Zeitpunkt, an dem die Benachrichtigung versendet wurde & \texttt{datetime} & & & \\
 		\bottomrule
 	\end{tabular}
 \end{table}

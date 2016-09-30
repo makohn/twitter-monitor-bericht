@@ -11,14 +11,14 @@ Klassen \texttt{StreamService} und \texttt{StatusService} sind dabei für den Au
 Verwaltung des Streams zuständig. \texttt{TweetService} und \texttt{UserService} ermöglichen die 
 Interaktion mit den Controllern und somit dem Benutzer am Frontend der Anwendung. Bei ihnen 
 handelt es sich um die Services im engeren Sinne, die dementsprechend auch als solche annotiert 
-werden. Die Schnittstelle zur Datenbank für beide Teile bieten eine Reihe von DAO-Services.\footnote{Data Access Objekt} 
+werden. Die Schnittstelle zur Datenbank für beide Teile bieten eine Reihe von \acs{DAO}-Services.
 In  diesem Abschnitt sollen die konkreten Aufgaben dieser einzelnen Teile und verschiedene Alternativen zu 
 ihrer Bewältigung mit ihren jeweiligen 
 Problemen vorgestellt werden.
 
 \subsection{Controller und Services}
 %\subsubsection*{Controller}
-In einer Spring-Web-Anwendung werden die ankommenden HTTP-Anfragen von den entsprechenden 
+In einer Spring-Webanwendung werden die ankommenden HTTP-Anfragen von den entsprechenden 
 Controller-Methoden, die als RequestHandler annotiert sind, verarbeitet. Die Aufgabe eines 
 Controllers beschränkt sich dabei darauf eine Darstellungsform, etwa in Form einer JSP-Datei, 
 zusammen mit einem eventuell nötigen Datenmodell zu liefern. Gemäß der Spring-Dokumentation soll 
@@ -40,8 +40,7 @@ sich darin erschöpft Daten von den Controllern in die Datenbank zu übertragen 
 es sich bei beiden Klassen lediglich um Wrapper, die Anfragen der Controller an die DAOs 
 weiterreichen. Obwohl dieser Zwischenschritt über die Services somit im Grunde genommen überflüssig 
 ist, wird er trotzdem genommen, um die Erweiterbarkeit der Anwendung sicherzustellen. Zusätzliche 
-Bearbeitung von angefragten Daten durch das Backend könnte jederzeit eingefügt werden ohne die DAO-
-Klassen verändern zu müssen.Ein Beispiel einer solchen Erweiterung ist die Filterung von Tweets in \texttt{TweetService}. 
+Bearbeitung von angefragten Daten durch das Backend könnte jederzeit eingefügt werden ohne die DAO-Klassen verändern zu müssen.Ein Beispiel einer solchen Erweiterung ist die Filterung von Tweets in \texttt{TweetService}. 
 Tweets, die die übergebenen Begriffe nicht enthalten, werden aus dem Ergebnis entfernt.
 \newpage
 Die Aufgaben der Controller und Services im engeren Sinne werden vom \textit{Spring Framework} 
@@ -60,7 +59,7 @@ Zum Aufbau der Verbindung zu Twitter wird die \textit{Twitter4J} API verwendet, 
 Beobachtermuster festlegt. Dabei handelt es sich um eine einfache Programmierschnittstelle, die den 
 größten Teil der Funktionalität der Twitter REST und Streaming APIs in Form von Java-Klassen zur 
 Verfügung stellt. Twitter nennt selbst zahlreiche alternative Bibliotheken in den unterschiedlichsten 
-Programmiersprachen.\footnote{https://dev.twitter.com/overview/api/twitter-libraries} Neben Twitter4J wird hier als einzige weitere Java-basierte Bibliothek die Twitter-eigene 
+Programmiersprachen.\footnote{vgl. https://dev.twitter.com/overview/api/twitter-libraries} Neben Twitter4J wird hier als einzige weitere Java-basierte Bibliothek die Twitter-eigene 
 \textit{Hosebird} Client-Bibliothek \textit{hbc} angeführt. Eine weitere Recherche führte außerdem zu den weiteren Alternativen 
 \textit{twitter-java} und \textit{JTwitter}. Die letzteren beiden Möglichkeit stellten sich jedoch beide schnell als veraltet und 
 nicht mehr aktuell heraus. Auch Twitter4J ist bereits etwas älter, aber offensichtlich noch auf einem relativ 
@@ -75,8 +74,7 @@ sicherzustellen, dass zu jeder Zeit ein Stream existiert, der auf die aktuellen 
 Benutzer ausgerichtet ist. Zu Beginn der Laufzeit wird \texttt{StreamService} als Komponente 
 instantiiert. Im Konstruktor wird dabei der erste Stream erstellt und initialisiert. Die Konfiguration 
 bei der Erstellung betrifft vor allem die \textit{OAuth}-Authentifizierung, die die Anwendung 
-gegenüber Twitter identifiziert \footnote{Oauth weiter ausführen oder auf Kap 1 verweisen (Twitter API 
-Beschreibung)}. Außerdem muss dem Stream ein Listener gegeben werden, der vor allem ankommende 
+gegenüber Twitter identifiziert \footnote{\textit{Oauth} ermöglicht eine API-Autorisierung mittels offenem Standard. Der Eigentümer einer Ressource kann den Zugriff auf diese mittels Zugangsberechtigung (typischerweise via tokenbasierter Multi-Faktor-Authentifizierung) kontrollieren}. Außerdem muss dem Stream ein Listener gegeben werden, der vor allem ankommende 
 \texttt{Status}-Objekte weiterleitet. Für die eigentliche Initialisierung des Streams wird ihm schließlich ein 
 \texttt{Filter} übergeben, der die notwendigen Suchparameter enthält. Hier sind das die Schlüsselwörter und die 
 gewünschten Sprachen. Die Schlüsselwörter lädt der \texttt{StreamService} direkt mit einer entsprechenden 
@@ -107,7 +105,7 @@ Während des Projekts kam die Vermutung auf, dass der Aufruf der \texttt{onStatu
 \subsubsection*{StatusService}
 Die Aufgabe des \texttt{StatusService} ist die Erstellung von Instanzen der internen Datenmodelle für Tweets und Autoren aus den \texttt{Status}-Objekten, die er vom \texttt{TweetListener} erhält. Diese werden dann mit Hilfe der entsprechenden DAOs in die Datenbank übertragen. \\
 Der \texttt{StatusStream} ist dabei zunächst dafür verantwortlich, dass im Falle eines Retweets der ursprüngliche Tweet aus dem \texttt{Status}-Objekt bearbeitet wird. Um die Anzahl der erfassten Tweets zu verringern, werden außerdem keine Retweets von älteren Nachrichten gespeichert. Tweets, die älter als zwei Tage sind, werden ebenfalls aussortiert. Dies betrifft insbesondere die Retweets. \\
-Hinsichtlich seiner Aufgabe ähnelt der \texttt{StatusService} stark den Services im engeren Sinne mit der Unterschied, dass diese die Controller, also das Frontend, mit den DAOs verbinden. Aufgrund der erfahrungsgemäß zu erwartenden Geschwindigkeit von eintreffenden Tweets würde eine einfache Übergabe der Tweets und Autoren an das entsprechende DAO nach der Erstellung eine entsprechend hohe Anzahl von Datenbankverbindungen in kurzer Zeit bedeuten. Um diese zu reduzieren, werden Tweets und Autoren zunächst in einer HashMap zwischengespeichert, die regelmäßig mit einem Batch-Update in die Datenbank geladen werden. Besonders aktive Autoren mit vielen Tweets in kurzer Zeit und häufige Retweets eines bestimmten Tweets werden dabei auch nur einmal übertragen. Dies bedeutet somit auch eine kleine Performance-Verbesserung.
+Hinsichtlich seiner Aufgabe ähnelt der \texttt{StatusService} stark den Services im engeren Sinne mit der Unterschied, dass diese die Controller, also das Frontend, mit den DAOs verbinden. Aufgrund der erfahrungsgemäß zu erwartenden Geschwindigkeit von eintreffenden Tweets würde eine einfache Übergabe der Tweets und Autoren an das entsprechende DAO nach der Erstellung eine entsprechend hohe Anzahl von Datenbankverbindungen in kurzer Zeit bedeuten. Um diese zu reduzieren, werden Tweets und Autoren zunächst in einer HashMap zwischengespeichert, die regelmäßig mit einem Batch-Update in die Datenbank geladen werden. Besonders aktive Autoren mit vielen Tweets in kurzer Zeit und häufige Retweets eines bestimmten Tweets werden dabei auch nur einmal übertragen. Dies verbesserte die Performance beiläufig.
 \\\\
 Obwohl mit einer sequentiellen Ankunft der Tweets gerechnet werden kann, ist die Klasse letztlich als Monitor implementiert. Dies liegt daran, dass auch hier der \texttt{Scheduler} eingesetzt wird, um in regelmäßigen, kurzen Abständen eine Methode aufzurufen, die die Tweets und Autoren aus den Buffern in die Datenbank lädt. Da diese Methode somit asynchron in einem eigenen Thread aufgerufen wird, kann es zu einem Resourcenkonflikt beim Aufruf kommen. Indem die beiden Methoden des \texttt{StatusService} als \texttt{synchronized} definiert werden, wird die gleichzeitige Ausführung beider Methoden und somit der gleichzeitige Schreib- und Lesezugriff auf die Buffer verhindert. Ohne den \texttt{Scheduler} könnte auch eine nicht-synchronisierte Implementierung verwendet werden, bei der die Buffer immer ab einer gewissen maximalen Größe geleert werden. Diese sequentielle und somit einfachere Lösung hätte jedoch den Nachteil, dass nicht absehbar ist, wie schnell ein gesetztes Limit erreicht wird.\footnote{Bei der großen Menge an Tweets, die in einem realistischen Szenario vorliegt, ist dieser Punkt selbstverständlich releativ.} Es werden zwar Tweets erfasst, aber solange das Limit nicht erreicht ist, werden sie nicht in die Datenbank übertragen und sind auch nicht vom Benutzer einsehbar. Auch hier lässt sich durch den \texttt{Scheduler} die Kontrolle über die Ereignisse behalten. Die Anzahl der Datenbankzugriffe in einem bestimmten Zeitraum durch den \texttt{StatusService} kann so genau festgelegt werden.
 %
@@ -115,7 +113,7 @@ Obwohl mit einer sequentiellen Ankunft der Tweets gerechnet werden kann, ist die
 \subsubsection*{Datenquelle mit Pooling}
 Die MySQL-Datenbank der Anwendung wird in der web.xml-Datei des Spring Frameworks als eine 
 Datenquelle, ein \texttt{Datasource}-Objekt, konfiguriert, das damit für die Erstellung der DAOs als 
-Komponente \texttt{ApplicationContext} verfügbar ist. \textit{Spring} übernimmt dabei die Verwaltung der 
+Komponente des \texttt{ApplicationContext} verfügbar ist. \textit{Spring} übernimmt dabei die Verwaltung der 
 Datenbankverbindungen in einem Verbindungspool.
 %
 \subsubsection*{Anfragen mit DAOs}
@@ -123,38 +121,38 @@ Jedes DAO entspricht einer Klasse des Datenmodells. Ihre Aufgabe ist das Speiche
 Bearbeiten der Daten von Objekten des jeweiligen Datentyps in der Datenbank. Spring bietet zur 
 Durchführung von SQL-Anfragen JDBC-Template-Klassen an, die bei der Erstellung eines DAOs mit der in 
 der web.xml-Datei definierten Datenquelle initialisiert werden. Für eine Anfrage an die Datenbank 
-werden dem Template ein Prepared Statement \footnote{Ein String mit einem SQL-Statement mit eventuellen Platzhaltern.} sowie eventuelle Parameter übergeben. Die Erstellung der 
-angefragten Objekte aus den einzelnen Zeilen des Ergebnisses übernimmt ein RowMapper, der für eine 
+werden dem Template ein \textit{Prepared Statement} \footnote{Ein String mit einem SQL-Statement mit eventuellen Platzhaltern.} sowie eventuelle Parameter übergeben. Die Erstellung der 
+angefragten Objekte aus den einzelnen Zeilen des Ergebnisses übernimmt ein \texttt{RowMapper}, der für eine 
 bestimmte Anfrage-Methode jeweils als innere Klasse definiert wird. Die Trennung von Prepared 
-Statement und Parametern verhindert eine SQL Injection durch eine User-Anfrage. Das JDBC-Template 
+Statement und Parametern verhindert eine \textit{SQL Injection} durch eine User-Anfrage. Das JDBC-Template 
 stellt sicher, dass die Parameter als solche eingefügt werden und nicht selbst als SQL-Code 
 interpretiert werden.
 
 \subsubsection*{DAOs im TwitterMonitor}
-In der Anwendung existieren vier DAOs für die Modell-Klassen User, Keyword, Author und Tweet. Die 
-DAOs der ersten drei Datentypen bieten keine größeren Besonderheiten. TweetDao ist aufwändiger.
+In der Anwendung existieren vier DAOs für die Model-Klassen \texttt{User}, \texttt{Keyword}, \texttt{Author} und \texttt{Tweet}. Die 
+DAOs der ersten drei Datentypen bieten keine größeren Besonderheiten. Die \texttt{TweetDAO} ist aufwändiger.
 
 \begin{description}
-	\item [User] Der UserDao-Service wird nur dazu verwendet einen neuen Nutzer auf Anfrage des UserService in der Datenbank einzutragen oder zu löschen.\footnote{Auf dem aktuellen Stand sind Email-Benachrichtigung und Email-Ändern noch nicht implementiert. Würde aber auch mit insert on duplicate key implementiert werden.} Die Abfrage nach vorhandenen Benutzern in der Datenbank beim Login wird automatisch von Spring-Security durchgeführt.\footnote{Siehe entsprechenden Abschnitt.} Das Einfügen eines Benutzers betrifft dabei zwei Tabellen, die (im Sinne des Spring Frameworks) einerseits den eigentlichen Nutzer und andererseits dessen unterschiedlichen Rollen festhalten. Da in der vorliegenden Anwendung nicht zwischen verschiedenen Rollen unterschieden wird, könnte darauf verzichtet werden. Das Spring Framework verlangt jedoch eine Rolle beim Login. Im Datenmodell User können die Daten der beiden Tabellen zusammengefasst werden, da es keinen Nutzer mit mehreren Rollen gibt.
-	\item [Keyword] Das KeywordDao liefert einerseits dem StreamService eine duplikatfreie Liste aller Schlüsselwörter, die in der Datenbank gespeichert sind.\footnote{Ein TwitterStream der Twitter4J-API erfordert ein String-Array.} Andererseits ist er auf Anfrage des UserService für das Einfügen, Entfernen und Laden von Schlüsselwörtern zuständig. Beim Einfügen von Duplikaten wird dabei stets ein Update der Priorität und des Aktiv-Status durchgeführt. Das Einfügen dient also auch der Änderung dieser Werte. Beim Laden der Liste eines Nutzers können entweder die positiven oder die negativen Schlüsselwörter angefragt werden.
-	\item [Author] Der AuthorDao dient nur zum Einfügen von Autoren in die Datenbank, die zuvor anhand eines Status-Objekts erstellt werden. Um die Anzahl von Datenbank-Aufrufen zu reduzieren werden die erstellten Autoren dabei gepuffert und mit einem Batch-Update eingefügt. Wenn ein bereits vorhandener Autor seine Daten in der Zwischenzeit geändert hat, werden diese Änderungen übernommen. Da alle Ausgabeinformationen in OutputTweet-Objekten enthalten sind, die im TweetDao erstellt werden, müssen die in der Datenbank vorhandenen Autorendaten nicht für sich abgefragt werden. Das Löschen der Autoren wird durch ein Event in der Datenbank sichergestellt.\footnote{Siehe entsprechenden Abschnitt.}
-	\item [Tweet] Mit dem TweetDao werden zunächst die aus einem Status-Objekt erstellten Tweets in die Datenbank eingefügt. Insbesondere im Falle von Retweets sind schon entsprechende TweetIds in der Datenbank vorhanden. Die Einträge werden dann stets auf den neuesten Stand gebracht.
+	\item [User] Der \texttt{UserDAO-Service} wird nur dazu verwendet einen neuen Nutzer auf Anfrage des UserService in der Datenbank einzutragen oder zu löschen.\footnote{Auf dem aktuellen Stand sind E-Mail-Benachrichtigung und E-Mail-Ändern noch nicht implementiert. Würde aber auch mit \texttt{insert on duplicate key} implementiert werden.} Die Abfrage nach vorhandenen Benutzern in der Datenbank beim Login wird automatisch von Spring-Security durchgeführt.\footnote{vgl. Abschnitt \ref{sec:frontend}} Das Einfügen eines Benutzers betrifft dabei zwei Tabellen, die (im Sinne des Spring Frameworks) einerseits den eigentlichen Nutzer und andererseits dessen unterschiedlichen Rollen festhalten. Da in der vorliegenden Anwendung nicht zwischen verschiedenen Rollen unterschieden wird, könnte darauf verzichtet werden. Das Spring Framework verlangt jedoch eine Rolle beim Login. Im Datenmodell User können die Daten der beiden Tabellen zusammengefasst werden, da es keinen Nutzer mit mehreren Rollen gibt.
+	\item [Keyword] Das \texttt{KeywordDAO} liefert einerseits dem \texttt{StreamService} eine duplikatfreie Liste aller Schlüsselwörter, die in der Datenbank gespeichert sind.\footnote{Ein TwitterStream der Twitter4J-API erfordert ein String-Array.} Andererseits ist er auf Anfrage des \texttt{UserService} für das Einfügen, Entfernen und Laden von Schlüsselwörtern zuständig. Beim Einfügen von Duplikaten wird dabei stets ein Update der Priorität und des Aktiv-Status durchgeführt. Das Einfügen dient also auch der Änderung dieser Werte. Beim Laden der Liste eines Nutzers können entweder die positiven oder die negativen Schlüsselwörter angefragt werden.
+	\item [Author] Der \texttt{AuthorDAO} dient nur zum Einfügen von Autoren in die Datenbank, die zuvor anhand eines \texttt{Status}-Objekts erstellt werden. Um die Anzahl von Datenbank-Aufrufen zu reduzieren werden die erstellten Autoren dabei gepuffert und mit einem Batch-Update eingefügt. Wenn ein bereits vorhandener Autor seine Daten in der Zwischenzeit geändert hat, werden diese Änderungen übernommen. Da alle Ausgabeinformationen in \texttt{OutputTweet}-Objekten enthalten sind, die im \texttt{TweetDAO} erstellt werden, müssen die in der Datenbank vorhandenen Autorendaten nicht für sich abgefragt werden. Das Löschen der Autoren wird durch ein Event in der Datenbank sichergestellt.\footnote{vgl. \autoref{subsec:events}}
+	\item [Tweet] Mit dem \texttt{TweetDAO} werden zunächst die aus einem \texttt{Status}-Objekt erstellten Tweets in die Datenbank eingefügt. Insbesondere im Falle von Retweets sind schon entsprechende Tweet-Ids in der Datenbank vorhanden. Die Einträge werden dann stets auf den neuesten Stand gebracht.
 \end{description}
 Doch die eigentliche Herausforderung besteht in der Abfrage der Daten für die Ausgabe. Einerseits ist 
 sowohl die Anzahl der Tweets an sich als auch die Anzahl der Tweets, die zu den Schlüsselwörtern eines 
 Benutzers passen, so groß, dass eine entsprechende Datenbankanfrage sehr viel Zeit beansprucht. 
-Andererseits enthält ein OutputTweet unter anderem auch eine Liste von Keywords, die nicht mit einer 
-Anfrage erfasst werden können.\footnote{Es muss noch geprüft werden, ob dies nicht doch im SQL-Statement erledigt werden kann.}
-In einer frühen Version wurde dafür eine gesonderte Abfrage für jeden einzelnen Tweet im RowMapper 
-gemacht. In dieser Version wurde auch noch mit mehreren Bild-Urls pro Tweet gerechnet. Auch diese wurde 
+Andererseits enthält ein \texttt{OutputTweet} unter anderem auch eine Liste von Keywords, die nicht mit einer 
+Anfrage erfasst werden können.
+In einer frühen Version wurde dafür eine gesonderte Abfrage für jeden einzelnen Tweet im \texttt{RowMapper} 
+gemacht. In dieser Version wurde auch noch mit mehreren Bild-URLs pro Tweet gerechnet. Auch diese wurde 
 für jeden Tweet in einer eigenen Anfrage geladen. Somit wurden für jeden Tweet zwei weitere Anfragen 
 gemacht. Ab einer gewissen Anzahl von Tweets überlastete dies offensichtlich den Datenbankzugriff.
 Als Lösung wurde zunächst nur noch von höchstens einem Bild pro Tweet ausgegangen. Somit muss nur noch 
 eine Liste für die Keywords erstellt werden. Dazu werden zunächst alle Tweets inklusive eines 
 Schlüsselworts geladen. Bei mehreren Schlüsselwörtern pro Tweet ist dieser auch mehrfach in der Liste 
 vertreten. Diese Liste wird durchlaufen. Dabei wird das jeweils erste Vorkommen eines Tweets mit seiner 
-TweetId als Schlüsselwert in einer HashMap hinterlegt und die Schlüsselwörter weiterer Vorkommen in die 
-Keyword-Liste des Tweets in der HashMap eingefügt. Das Einfügen in die HashMap hat einen konstanten 
+Tweet-Id als Schlüsselwert in einer HashMap hinterlegt und die Schlüsselwörter weiterer Vorkommen in die 
+Keywordliste des Tweets in der HashMap eingefügt. Das Einfügen in die HashMap hat einen konstanten 
 Aufwand. Somit ist der schlimmste Fall eine duplikatfreie Liste von Tweets mit einem linearen Aufwand.
 \\\\
 Eine weitere Herausforderung besteht in der Einführung von auszuschließenden Schlüsselwörtern. Die dazu 
@@ -164,7 +162,7 @@ Datenbank.
 \\\\
 Die Ausgabe der Tweets ist absteigend nach der Priorität geordnet und auf ein bestimmtes Limit beschränkt. 
 So kann die maximale Anzahl der Tweets, die einem Benutzer angezeigt werden, festgelegt werden. Da die 
-Such- und Sortiertfunktionen der Anzeige im Frontend jedoch allein in JavaScript implementiert sind, 
+Such- und Sortiertfunktionen der Anzeige im Frontend jedoch allein in Javascript implementiert sind, 
 ergibt sich damit das Problem, dass dem Nutzer nicht alle Daten zur Verfügung stehen.\footnote{Die Suchfunktion könnte etwa auch durch einen Controller-Aufruf in der Datenbank alle Tweets durchsuchen und so ein besseres Ergebnis liefert.}
 
 
